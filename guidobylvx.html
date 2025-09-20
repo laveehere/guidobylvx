@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CulturalBot - Your Local Guide (With Real APIs)</title>
+    <style>
+        /* (Paste your existing CSS styles here or keep as is from your original code) */
+        /* For brevity, only minimal styling is included here */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            height: 700px;
+        }
+        /* ... include all your existing styles here ... */
+        /* For demonstration, please use your full original styles */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar and main content as in your original HTML -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>🌍 CulturalBot</h1>
+                <p>Your AI Local Guide</p>
+            </div>
+            <div class="city-selector">
+                <select id="citySelect">
+                    <option value="tokyo">🗾 Tokyo, Japan</option>
+                    <option value="paris">🗼 Paris, France</option>
+                    <option value="mumbai">🇮🇳 Mumbai, India</option>
+                    <option value="istanbul">🕌 Istanbul, Turkey</option>
+                    <option value="newyork">🗽 New York, USA</option>
+                    <option value="london">🏰 London, UK</option>
+                    <option value="delhi">🏛️ Delhi, India</option>
+                    <option value="barcelona">🏛️ Barcelona, Spain</option>
+                </select>
+            </div>
+            <!-- Categories, user preferences, local contributor checkbox, and add recommendation button -->
+            <div class="categories">
+                <h3>Explore Categories</h3>
+                <button class="category-btn" data-category="food">🍜 Local Food</button>
+                <button class="category-btn" data-category="streets">🛣️ Famous Streets</button>
+                <button class="category-btn" data-category="clothing">👘 Traditional Clothing</button>
+                <button class="category-btn" data-category="culture">🎭 Cultural Sites</button>
+                <button class="category-btn" data-category="markets">🛒 Local Markets</button>
+                <button class="category-btn" data-category="festivals">🎉 Festivals & Events</button>
+                <button class="category-btn" data-category="arts">🎨 Arts & Crafts</button>
+                <button class="category-btn" data-category="nightlife">🌙 Nightlife</button>
+            </div>
+            <div class="user-prefs">
+                <h4>Your Preferences</h4>
+                <input type="text" class="pref-input" id="budget" placeholder="Budget (e.g., $50/day)">
+                <input type="text" class="pref-input" id="interests" placeholder="Interests (e.g., history, art)">
+                <input type="text" class="pref-input" id="dietary" placeholder="Dietary restrictions">
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <h4>🌟 Help Us Learn</h4>
+                    <p style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Are you a local? Share your recommendations!</p>
+                    <label style="display: flex; align-items: center; font-size: 12px; margin-bottom: 5px;">
+                        <input type="checkbox" id="localCheckbox" style="margin-right: 5px; width: auto;">
+                        I'm a local resident
+                    </label>
+                    <button class="add-recommendation-btn" id="addRecommendationBtn" style="width: 100%; margin-top: 5px; display: none;">
+                        ➕ Add Recommendation
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h2 id="cityName">Welcome to Tokyo!</h2>
+                <p id="cityDescription">Discover authentic local culture, food, and hidden gems</p>
+            </div>
+            <div class="chat-container">
+                <div class="quick-suggestions">
+                    <button class="quick-btn" onclick="sendMessage('What are the must-try local foods?')">Must-try foods</button>
+                    <button class="quick-btn" onclick="sendMessage('Show me famous streets to visit')">Famous streets</button>
+                    <button class="quick-btn" onclick="sendMessage('Traditional clothing recommendations')">Traditional wear</button>
+                    <button class="quick-btn" onclick="sendMessage('Get real-time weather data')">🌤️ Real Weather</button>
+                    <button class="quick-btn" onclick="sendMessage('What events are happening now?')">🎉 Live Events</button>
+                </div>
+                <div class="messages" id="messages">
+                    <div class="message bot-message">
+                        <div class="category">🌟 Welcome Message</div>
+                        <p>Hello! I'm your AI cultural guide with community-powered recommendations.</p>
+                        <p><strong>🎯 Data Sources:</strong></p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>Cultural Info:</strong> Curated database + Local contributions</li>
+                            <li><strong>Weather:</strong> Real-time OpenWeatherMap API</li>
+                            <li><strong>Events:</strong> Real-time Eventbrite API</li>
+                            <li><strong>Time-based:</strong> Real-time local time</li>
+                        </ul>
+                        <p><strong>💡 For Production:</strong> Replace demo keys with real API keys.</p>
+                        <p>Select a city and ask me anything about local culture!</p>
+                    </div>
+                </div>
+                <div class="loading" id="loading" style="display:none;">
+                    <p>🤔 Let me find the best local recommendations for you...</p>
+                </div>
+                <div class="input-container">
+                    <input type="text" class="message-input" id="messageInput" placeholder="Ask me about local culture, food, places to visit..." />
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // INSERT YOUR API KEYS HERE:
+    const OPENWEATHER_API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY';
+    const EVENTBRITE_API_TOKEN = 'YOUR_EVENTBRITE_API_TOKEN';
+
+    // City coordinates for APIs
+    const cityCoords = {
+        tokyo: { lat: 35.6762, lon: 139.6503, name: "Tokyo" },
+        paris: { lat: 48.8566, lon: 2.3522, name: "Paris" },
+        mumbai: { lat: 19.0760, lon: 72.8777, name: "Mumbai" },
+        istanbul: { lat: 41.0082, lon: 28.9784, name: "Istanbul" },
+        newyork: { lat: 40.7128, lon: -74.0060, name: "New York" },
+        london: { lat: 51.5074, lon: -0.1278, name: "London" },
+        delhi: { lat: 28.7041, lon: 77.1025, name: "Delhi" },
+        barcelona: { lat: 41.3851, lon: 2.1734, name: "Barcelona" }
+    };
+
+    // Basic cultural data (simplified for demo, expand as needed)
+    const culturalDatabase = {
+        tokyo: {
+            name: "Tokyo, Japan",
+            description: "Experience the perfect blend of ancient traditions and modern innovation",
+            food: [
+                { name: "Authentic Ramen", description: "Try Ichiran or Ippudo for traditional tonkotsu ramen", location: "Shibuya, Shinjuku", price: "¥800-1200", rating: "⭐⭐⭐⭐⭐", tips: "Visit late evening for authentic experience", source: "verified" },
+                { name: "Sushi at Tsukiji", description: "Fresh sushi at the famous Tsukiji Outer Market", location: "Tsukiji Market", price: "¥2000-5000", rating: "⭐⭐⭐⭐⭐", tips: "Go early morning for the freshest selection", source: "verified" }
+            ],
+            streets: [
+                { name: "Shibuya Crossing", description: "The world's busiest pedestrian crossing", highlights: "Neon lights, crowds, iconic atmosphere", best_time: "Evening for neon lights", rating: "⭐⭐⭐⭐⭐", source: "verified" }
+            ],
+            clothing: [
+                { name: "Traditional Kimono", description: "Rent authentic kimono for temple visits", locations: "Asakusa, Kyoto day trip", rental_price: "¥3000-8000/day", tips: "Book in advance, includes hair styling", source: "verified" }
+            ],
+            culture: [
+                { name: "Senso-ji Temple", description: "Tokyo's oldest temple with traditional architecture", location: "Asakusa", entry_fee: "Free", best_time: "Early morning or sunset", source: "verified" }
+            ],
+            festivals: [
+                { name: "Cherry Blossom Season", period: "Late March - Early May", locations: "Ueno Park, Shinjuku Gyoen", activities: "Hanami parties, night illuminations", source: "verified" }
+            ],
+            currentWeather: null,
+            currentEvents: null
+        }
+        // Add other cities similarly...
+    };
+
+    let currentCity = 'tokyo';
+    let userPreferences = { budget: '', interests: '', dietary: '' };
+    let isLocal = false;
+
+    // Event listeners setup
+    document.addEventListener('DOMContentLoaded', () => {
+        setupEventListeners();
+        updateCityInfo();
+        initializeWelcome();
+    });
+
+    function setupEventListeners() {
+        document.getElementById('citySelect').addEventListener('change', async (e) => {
+            currentCity = e.target.value;
+            addBotMessage(`🌍 Switching to ${culturalDatabase[currentCity].name}... Getting live updates!`);
+            await updateCityInfo();
+            addBotMessage(`Welcome to ${culturalDatabase[currentCity].name}! ✨ What would you like to discover?`);
+        });
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', event => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                event.target.classList.add('active');
+                const category = event.target.dataset.category;
+                const categoryMessages = {
+                    food: "Show me the best local food recommendations",
+                    streets: "What are the famous streets I should visit?",
+                    clothing: "Tell me about traditional clothing and where to buy",
+                    culture: "Show me important cultural sites and attractions",
+                    markets: "Where are the best local markets for shopping?",
+                    festivals: "What festivals or events are happening?",
+                    arts: "Tell me about local arts and crafts scene",
+                    nightlife: "What's the nightlife like here?"
+                };
+                sendMessage(categoryMessages[category] || "Tell me more about this category");
+            });
+        });
+
+        ['budget', 'interests', 'dietary'].forEach(pref => {
+            document.getElementById(pref).addEventListener('change', e => {
+                userPreferences[pref] = e.target.value;
+            });
+        });
+
+        document.getElementById('localCheckbox').addEventListener('change', e => {
+            isLocal = e.target.checked;
+            const addBtn = document.getElementById('addRecommendationBtn');
+            addBtn.style.display = isLocal ? 'block' : 'none';
+            if (isLocal) {
+                addBotMessage("Thank you for identifying as a local! You can now contribute recommendations to help travelers discover authentic experiences. 🌟", '🏠 Local Contributor');
+            }
+        });
+
+        document.getElementById('addRecommendationBtn').addEventListener('click', showContributionForm);
+
+        document.getElementById('messageInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+
+    async function updateCityInfo() {
+        const city = culturalDatabase[currentCity];
+        document.getElementById('cityName').textContent = `Welcome to ${city.name}!`;
+        document.getElementById('cityDescription').textContent = city.description;
+
+        // Remove old weather info
+        const oldWeather = document.querySelector('.weather-info');
+        if (oldWeather) oldWeather.remove();
+
+        // Show loading in header for weather
+        const header = document.querySelector('.header');
+        const loadingWeather = document.createElement('div');
+        loadingWeather.className = 'weather-info';
+        loadingWeather.innerHTML = `<strong>🌤️ Getting weather for ${city.name}...</strong> <span style="opacity:0.7">⚡ Loading</span>`;
+        header.appendChild(loadingWeather);
+
+        // Fetch real weather
+        try {
+            const weatherData = await fetchRealWeather(currentCity);
+            if (weatherData) {
+                city.currentWeather = weatherData;
+                loadingWeather.innerHTML = `
+                    <strong>🌤️ Live Weather:</strong> ${weatherData.temperature}°C, ${weatherData.condition}<br/>
+                    <small>💨 ${weatherData.wind} • 💧 ${weatherData.humidity}% humidity • Updated: ${weatherData.timestamp}</small>
+                `;
+            } else {
+                throw new Error('No weather data');
+            }
+        } catch (e) {
+            console.error('Weather fetch failed', e);
+            loadingWeather.innerHTML = `<strong>🌤️ Weather in ${city.name}:</strong> Data temporarily unavailable`;
+        }
+
+        // Fetch live events
+        try {
+            const events = await fetchLiveEvents(currentCity);
+            if (events && events.length > 0) {
+                city.currentEvents = events;
+            } else {
+                city.currentEvents = [];
+            }
+        } catch (e) {
+            console.error('Events fetch failed', e);
+            city.currentEvents = [];
+        }
+    }
+
+    async function fetchRealWeather(city) {
+        const coords = cityCoords[city];
+        if (!coords) return null;
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}&appid=${OPENWEATHER_API_KEY}&units=metric`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Weather API error');
+            const data = await response.json();
+            return {
+                temperature: Math.round(data.main.temp),
+                condition: data.weather[0].description,
+                humidity: data.main.humidity,
+                wind: `${data.wind.speed} m/s`,
+                timestamp: new Date().toLocaleString(),
+                city: city
+            };
+        } catch (error) {
+            console.error('Fetch real weather failed', error);
+            return null;
+        }
+    }
+
+    async function fetchLiveEvents(city) {
+        const cityName = cityCoords[city]?.name || city;
+        if (!cityName) return [];
+        const url = `https://www.eventbriteapi.com/v3/events/search/?location.address=${encodeURIComponent(cityName)}&token=${EVENTBRITE_API_TOKEN}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Eventbrite API error');
+            const data = await response.json();
+            // Map to simpler event objects
+            return data.events.slice(0, 5).map(event => ({
+                name: event.name.text,
+                description: event.description.text || 'No description',
+                location: event.venue ? `${event.venue.address.localized_address_display}` : 'N/A',
+                startTime: event.start.local,
+                url: event.url,
+                source: 'eventbrite'
+            }));
+        } catch (error) {
+            console.error('Fetch live events failed', error);
+            return [];
+        }
+    }
+
+    function sendMessage(message = null) {
+        const input = document.getElementById('messageInput');
+        const userMessage = message || input.value.trim();
+        if (!userMessage) return;
+
+        addUserMessage(userMessage);
+        if (!message) input.value = '';
+
+        showLoading();
+
+        setTimeout(() => {
+            processMessage(userMessage.toLowerCase());
+            hideLoading();
+        }, 1000);
+    }
+
+    function addUserMessage(message) {
+        const messagesContainer = document.getElementById('messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message user-message';
+        messageDiv.textContent = message;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function addBotMessage(message, category = null) {
+        const messagesContainer = document.getElementById('messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message';
+
+        if (category) {
+            messageDiv.innerHTML = `<div class="category">${category}</div><p>${message}</p>`;
+        } else {
+            messageDiv.innerHTML = `<p>${message}</p>`;
+        }
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showLoading() {
+        document.getElementById('loading').style.display = 'block';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function processMessage(message) {
+        const city = culturalDatabase[currentCity];
+        if (!city) {
+            addBotMessage("Sorry, city data not found.");
+            return;
+        }
+
+        if (message.includes('weather')) {
+            if (city.currentWeather) {
+                const w = city.currentWeather;
+                addBotMessage(`🌤️ Weather in ${city.name}: ${w.temperature}°C, ${w.condition}, Wind: ${w.wind}, Humidity: ${w.humidity}%. Last updated: ${w.timestamp}`, 'Weather Info');
+            } else {
+                addBotMessage(`Let me fetch the weather for you...`, 'Weather Info');
+                fetchRealWeather(currentCity).then(w => {
+                    if (w) {
+                        city.currentWeather = w;
+                        addBotMessage(`🌤️ Weather in ${city.name}: ${w.temperature}°C, ${w.condition}, Wind: ${w.wind}, Humidity: ${w.humidity}%. Last updated: ${w.timestamp}`, 'Weather Info');
+                    } else {
+                        addBotMessage(`Sorry, couldn't get the weather info now.`, 'Weather Info');
+                    }
+                });
+            }
+            return;
+        }
+
+        if (message.includes('event') || message.includes('festival') || message.includes('happening now')) {
+            if (city.currentEvents && city.currentEvents.length > 0) {
+                addBotMessage(`🎉 Events happening now in ${city.name}:`, 'Live Events');
+                city.currentEvents.forEach(event => {
+                    const eventDiv = document.createElement('div');
+                    eventDiv.className = 'recommendation';
+                    eventDiv.innerHTML = `<h4><a href="${event.url}" target="_blank">${event.name}</a></h4><p>${event.description}</p><p><strong>📍 Location:</strong> ${event.location}</p><p><strong>🕒 Start Time:</strong> ${new Date(event.startTime).toLocaleString()}</p>`;
+                    document.getElementById('messages').appendChild(eventDiv);
+                });
+            } else {
+                addBotMessage(`No events found right now for ${city.name}. You can check local event listings for more info!`, 'Live Events');
+            }
+            return;
+        }
+
+        if (message.includes('food') || message.includes('eat') || message.includes('restaurant')) {
+            addBotMessage(`Here are some must-try local foods in ${city.name}:`, 'Local Food');
+            if (city.food && city.food.length > 0) {
+                city.food.forEach(item => {
+                    const recDiv = document.createElement('div');
+                    recDiv.className = 'recommendation';
+                    recDiv.innerHTML = `<h4>${item.name}</h4><p>${item.description}</p><p><strong>📍 Location:</strong> ${item.location}</p><p><strong>💰 Price:</strong> ${item.price}</p><p><strong>⭐ Rating:</strong> ${item.rating}</p><p><strong>💡 Tip:</strong> ${item.tips}</p>`;
+                    document.getElementById('messages').appendChild(recDiv);
+                });
+            } else {
+                addBotMessage("Sorry, no food data available for this city yet.");
+            }
+            return;
+        }
+
+        if (message.includes('street') || message.includes('road') || message.includes('avenue')) {
+            addBotMessage(`Famous streets to visit in ${city.name}:`, 'Famous Streets');
+            if (city.streets && city.streets.length > 0) {
+                city.streets.forEach(item => {
+                    const recDiv = document.createElement('div');
+                    recDiv.className = 'recommendation';
+                    recDiv.innerHTML = `<h4>${item.name}</h4><p>${item.description}</p><p><strong>⭐ Rating:</strong> ${item.rating}</p><p><strong>🕒 Best Time:</strong> ${item.best_time}</p>`;
+                    document.getElementById('messages').appendChild(recDiv);
+                });
+            } else {
+                addBotMessage("Sorry, no street data available for this city yet.");
+            }
+            return;
+        }
+
+        // Add other category handlers similarly...
+
+        // Default fallback
+        addBotMessage(`I can help you discover local food, streets, clothing, culture, markets, festivals, and weather in ${city.name}. What would you like to know?`);
+    }
+
+    function initializeWelcome() {
+        const now = new Date();
+        const hour = now.getHours();
+        let greeting = "Hello";
+        if (hour < 12) greeting = "Good morning";
+        else if (hour < 17) greeting = "Good afternoon";
+        else greeting = "Good evening";
+
+        setTimeout(() => {
+            addBotMessage(`${greeting}! I'm your AI cultural guide. Ask me about local experiences including food, streets, culture, festivals, weather, and more!`, '🤖 Your AI Guide');
+        }, 500);
+    }
+
+    // Placeholder functions for local contributions (you can expand these)
+    function showContributionForm() {
+        alert('Contribution form feature coming soon!');
+    }
+
+</script>
+</body>
+</html>
