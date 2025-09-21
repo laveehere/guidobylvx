@@ -5,7 +5,7 @@
 const API_CONFIG = {
     // OpenWeatherMap Free API (1000 calls/day)
     weather: {
-        apiKey: 'YOUR_OPENWEATHER_API_KEY',
+        apiKey: '7004d402b71c56b3c977de6563d86c5f',
         baseUrl: 'https://api.openweathermap.org/data/2.5',
         enabled: false // Set to true when you add your API key
     },
