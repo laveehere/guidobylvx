@@ -18,16 +18,16 @@ const API_CONFIG = {
     
     // Hugging Face Inference API - Free
     ai: {
-        apiKey: 'YOUR_HUGGING_FACE_TOKEN',
+        apiKey: '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',
         baseUrl: 'https://api-inference.huggingface.co',
-        enabled: false // Set to true when you add your token
+        enabled: true // Set to true when you add your token
     },
     
     // NewsAPI Free (1000 requests/day)
     news: {
-        apiKey: '46c42e6b84bf4a0a92fd76632770dbd9',
+        apiKey: 'apinotworkingforonecity',
         baseUrl: 'https://newsapi.org/v2',
-        enabled: true // Set to true when you add your API key
+        enabled: false // Set to true when you add your API key
     }
 };
 
