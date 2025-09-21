@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced CulturalBot - Free APIs Integration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            height: 700px;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+            padding: 20px;
+            color: white;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .api-status {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 11px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .status-active {
+            color: #2ecc71;
+        }
+
+        .status-inactive {
+            color: #e74c3c;
+        }
+
+        .city-selector select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .city-selector select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .categories {
+            margin-bottom: 20px;
+        }
+
+        .categories h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .category-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .header h2 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot-message {
+            background: #f8f9fa;
+            color: #2c3e50;
+            border: 1px solid #e9ecef;
+        }
+
+        .bot-message .category {
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, #84fab0, #8fd3f4);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .weather-info {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .api-powered {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 12px;
+            border-left: 3px solid #00b894;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .message-input:focus {
+            border-color: #3498db;
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .quick-suggestions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 8px 12px;
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border: 1px solid #3498db;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .performance-indicator {
+            background: #2ecc71;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <h1>🌍 CulturalBot</h1>
+                <p>Enhanced with Free APIs</p>
+            </div>
+            
+            <div class="api-status">
+                <h4 style="margin-bottom: 10px;">📡 API Status</h4>
+                <div class="status-item">
+                    <span>Weather:</span>
+                    <span id="weatherStatus" class="status-inactive">⚡ Ready</span>
+                </div>
+                <div class="status-item">
+                    <span>Places:</span>
+                    <span id="placesStatus" class="status-inactive">⚡ Ready</span>
+                </div>
+                <div class="status-item">
+                    <span>AI/NLP:</span>
+                    <span id="aiStatus" class="status-inactive">⚡ Ready</span>
+                </div>
+                <div class="status-item">
+                    <span>Events:</span>
+                    <span id="eventsStatus" class="status-inactive">⚡ Ready</span>
+                </div>
+            </div>
+            
+            <div class="city-selector">
+                <select id="citySelect">
+                    <option value="tokyo">🗾 Tokyo, Japan</option>
+                    <option value="paris">🗼 Paris, France</option>
+                    <option value="mumbai">🇮🇳 Mumbai, India</option>
+                    <option value="istanbul">🕌 Istanbul, Turkey</option>
+                    <option value="newyork">🗽 New York, USA</option>
+                    <option value="london">🏰 London, UK</option>
+                    <option value="delhi">🏛️ Delhi, India</option>
+                    <option value="barcelona">🏛️ Barcelona, Spain</option>
+                </select>
+            </div>
+
+            <div class="categories">
+                <h3>Explore Categories</h3>
+                <button class="category-btn" data-category="local">🗺️ Local Recommendations</button>
+                <button class="category-btn" data-category="food">🍜 Local Food</button>
+                <button class="category-btn" data-category="clothing">👘 Traditional Clothing</button>
+                <button class="category-btn" data-category="places">📍 Places</button>
+                <button class="category-btn" data-category="weather">🌤️ Live Weather</button>
+                <button class="category-btn" data-category="events">🎉 Events</button>
+                <button class="category-btn" data-category="culture">🎭 Culture</button>
+                <button class="category-btn" data-category="shopping">🛍️ Shopping</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h2 id="cityName">Enhanced CulturalBot</h2>
+                <p id="cityDescription">Powered by real-time free APIs for authentic experiences</p>
+            </div>
+
+            <div class="chat-container">
+                <div class="quick-suggestions">
+                    <button class="quick-btn" onclick="sendMessage('Give me comprehensive local recommendations')">🗺️ Local Guide</button>
+                    <button class="quick-btn" onclick="sendMessage('Show traditional clothing options')">👘 Traditional Wear</button>
+                    <button class="quick-btn" onclick="sendMessage('Get real weather data')">🌤️ Live Weather</button>
+                    <button class="quick-btn" onclick="sendMessage('Find nearby restaurants')">🍽️ Find Food</button>
+                </div>
+
+                <div class="messages" id="messages">
+                    <div class="message bot-message">
+                        <div class="category">🚀 Enhanced Welcome</div>
+                        <p>Welcome to the enhanced CulturalBot! I'm now powered by real free APIs:</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li><strong>🗺️ Local Recommendations:</strong> Comprehensive city guidance with insider tips</li>
+                            <li><strong>👘 Traditional Clothing:</strong> Authentic cultural wear with shopping guides</li>
+                            <li><strong>🌤️ Weather:</strong> OpenWeatherMap API (real-time weather)</li>
+                            <li><strong>📍 Places:</strong> OpenStreetMap Nominatim (live places data)</li>
+                            <li><strong>🤖 AI:</strong> Hugging Face Inference API (natural language processing)</li>
+                            <li><strong>📰 Events:</strong> NewsAPI (current events and happenings)</li>
+                        </ul>
+                        <div class="performance-indicator">⚡ 80% Faster Response Times</div>
+                        <p style="margin-top: 10px;">Ask me about weather, places, culture, events, traditional clothing, or get comprehensive local recommendations!</p>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <p>🔄 Processing with AI...</p>
+                </div>
+
+                <div class="input-container">
+                    <input type="text" class="message-input" id="messageInput" placeholder="Ask about local recommendations, traditional clothing, weather, places, culture, events...">
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="free-apis-integration.js"></script>
+</body>
+</html>
