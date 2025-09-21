@@ -7,7 +7,7 @@ const API_CONFIG = {
     weather: {
         apiKey: '7004d402b71c56b3c977de6563d86c5f',
         baseUrl: 'https://api.openweathermap.org/data/2.5',
-        enabled: false // Set to true when you add your API key
+        enabled: true // Set to true when you add your API key
     },
     
     // Nominatim (OpenStreetMap) - Completely free
