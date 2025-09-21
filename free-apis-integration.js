@@ -25,9 +25,9 @@ const API_CONFIG = {
     
     // NewsAPI Free (1000 requests/day)
     news: {
-        apiKey: 'YOUR_NEWSAPI_KEY',
+        apiKey: '46c42e6b84bf4a0a92fd76632770dbd9',
         baseUrl: 'https://newsapi.org/v2',
-        enabled: false // Set to true when you add your API key
+        enabled: true // Set to true when you add your API key
     }
 };
 
