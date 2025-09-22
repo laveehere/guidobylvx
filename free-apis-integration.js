@@ -1,13 +1,28 @@
 // Enhanced CulturalBot with Free APIs Integration
 // Performance-optimized with real API calls
 
-// Configuration for free APIs
+// Secure Configuration with Environment Variable Support
+// Priority: 1) Runtime config 2) Build-time env vars 3) Default values
+
+// Function to safely get configuration values
+function getEnvVar(key, defaultValue = null) {
+    // Try multiple sources for environment variables
+    if (typeof window !== 'undefined' && window.CONFIG && window.CONFIG[key]) {
+        return window.CONFIG[key];
+    }
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+        return process.env[key];
+    }
+    return defaultValue;
+}
+
+// Secure API Configuration
 const API_CONFIG = {
     // OpenWeatherMap Free API (1000 calls/day)
     weather: {
-        apiKey: '7004d402b71c56b3c977de6563d86c5f',
+        apiKey: getEnvVar('OPENWEATHER_API_KEY'),
         baseUrl: 'https://api.openweathermap.org/data/2.5',
-        enabled: true // Set to true when you add your API key
+        get enabled() { return !!this.apiKey && this.apiKey !== 'YOUR_OPENWEATHER_API_KEY' && this.apiKey !== null; }
     },
     
     // Nominatim (OpenStreetMap) - Completely free
@@ -18,18 +33,25 @@ const API_CONFIG = {
     
     // Hugging Face Inference API - Free
     ai: {
-        apiKey: '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',
+        apiKey: getEnvVar('HUGGINGFACE_TOKEN'),
         baseUrl: 'https://api-inference.huggingface.co',
-        enabled: true // Set to true when you add your token
+        get enabled() { return !!this.apiKey && this.apiKey !== 'YOUR_HUGGING_FACE_TOKEN' && this.apiKey !== null; }
     },
     
     // NewsAPI Free (1000 requests/day)
     news: {
-        apiKey: 'apinotworkingforonecity',
+        apiKey: getEnvVar('NEWS_API_KEY'),
         baseUrl: 'https://newsapi.org/v2',
-        enabled: false // Set to true when you add your API key
+        get enabled() { return !!this.apiKey && this.apiKey !== 'YOUR_NEWSAPI_KEY' && this.apiKey !== null; }
     }
 };
+
+// Add configuration status logging
+console.log('🔧 API Configuration Status:');
+console.log('Weather API:', API_CONFIG.weather.enabled ? '✅ Enabled' : '❌ No API key');
+console.log('Places API:', API_CONFIG.places.enabled ? '✅ Enabled' : '❌ Disabled');
+console.log('AI API:', API_CONFIG.ai.enabled ? '✅ Enabled' : '❌ No token');
+console.log('News API:', API_CONFIG.news.enabled ? '✅ Enabled' : '❌ No API key');
 
 // Global variables
 let currentCity = 'tokyo';
