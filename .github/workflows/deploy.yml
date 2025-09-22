@@ -1,0 +1,58 @@
+name: Deploy Cultural Chatbot to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create secure config.js from GitHub Secrets
+        run: |
+          cat > config.js << 'EOF'
+          // Auto-generated secure configuration
+          // Generated from GitHub Secrets during deployment
+          
+          const CONFIG = {
+              OPENWEATHER_API_KEY: '${{ secrets.OPENWEATHER_API_KEY }}',
+              HUGGINGFACE_TOKEN: '${{ secrets.HUGGINGFACE_TOKEN }}',
+              NEWS_API_KEY: '${{ secrets.NEWS_API_KEY }}',
+              ENVIRONMENT: 'production',
+              BUILD_NUMBER: '${{ github.run_number }}',
+              DEPLOY_TIME: '${{ github.event.head_commit.timestamp }}'
+          };
+          
+          // Make config available globally
+          if (typeof window !== 'undefined') {
+              window.CONFIG = CONFIG;
+          }
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
