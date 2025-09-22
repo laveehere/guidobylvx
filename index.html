@@ -393,6 +393,20 @@
         </div>
     </div>
 
+    <!-- Configuration loading (tries config.js first, falls back to defaults) -->
+    <script>
+        // Try to load config.js if it exists (for production deployment)
+        (function() {
+            const script = document.createElement('script');
+            script.src = 'config.js';
+            script.onerror = function() {
+                console.log('No config.js found - using fallback configuration');
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
+    
+    <!-- Main application script -->
     <script src="free-apis-integration.js"></script>
 </body>
 </html>
