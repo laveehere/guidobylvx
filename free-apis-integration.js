@@ -765,6 +765,8 @@ function createQuickActions() {
     document.getElementById('messages').appendChild(quickDiv);
 }
 
+// Initialize quick actions after page load
+setTimeout(createQuickActions, 2000);
 // SIMPLE FIX - Just add this to the END of your existing file
 
 // Missing sendMessage function that your HTML needs
@@ -793,5 +795,7 @@ function sendMessage(predefinedMessage = null) {
     }
 }
 
-// Initialize quick actions after page load
-setTimeout(createQuickActions, 2000);
+// Just add this at the very end - don't change anything else
+function sendMessage(msg) { 
+    console.log('Message:', msg || document.getElementById('messageInput')?.value); 
+}
