@@ -765,5 +765,33 @@ function createQuickActions() {
     document.getElementById('messages').appendChild(quickDiv);
 }
 
+// SIMPLE FIX - Just add this to the END of your existing file
+
+// Missing sendMessage function that your HTML needs
+function sendMessage(predefinedMessage = null) {
+    const messageInput = document.getElementById('messageInput');
+    const message = predefinedMessage || (messageInput ? messageInput.value.trim() : '');
+    
+    if (!message) return;
+    
+    // Add user message
+    addUserMessage(message);
+    
+    // Clear input
+    if (messageInput && !predefinedMessage) {
+        messageInput.value = '';
+    }
+    
+    // Handle the message with your existing logic
+    if (typeof handleUserMessage === 'function') {
+        handleUserMessage(message);
+    } else if (typeof processUserInput === 'function') {
+        processUserInput(message);
+    } else {
+        // Fallback - just echo
+        addBotMessage(`I received: ${message}`, '🤖 Bot');
+    }
+}
+
 // Initialize quick actions after page load
 setTimeout(createQuickActions, 2000);
