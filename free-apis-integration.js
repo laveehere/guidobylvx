@@ -47,11 +47,12 @@ const API_CONFIG = {
 };
 
 // Add configuration status logging
-console.log('🔧 API Configuration Status:');
-console.log('Weather API:', API_CONFIG.weather.enabled ? '✅ Enabled' : '❌ No API key');
-console.log('Places API:', API_CONFIG.places.enabled ? '✅ Enabled' : '❌ Disabled');
-console.log('AI API:', API_CONFIG.ai.enabled ? '✅ Enabled' : '❌ No token');
-console.log('News API:', API_CONFIG.news.enabled ? '✅ Enabled' : '❌ No API key');
+console.log('🔧 API Configuration Status (Live-First Mode):');
+console.log('Weather API:', API_CONFIG.weather.enabled ? '✅ LIVE - OpenWeatherMap' : '⚠️ DEMO - Add API key for live data');
+console.log('Places API:', API_CONFIG.places.enabled ? '✅ LIVE - OpenStreetMap' : '❌ DISABLED');
+console.log('AI API:', API_CONFIG.ai.enabled ? '✅ LIVE - Hugging Face' : '⚠️ DEMO - Add token for live responses');
+console.log('News API:', API_CONFIG.news.enabled ? '✅ LIVE - NewsAPI' : '⚠️ DEMO - Add API key for live news');
+console.log('🎯 Priority: Live APIs → Demo fallback only when APIs fail');
 
 // Global variables
 let currentCity = 'tokyo';
@@ -66,20 +67,31 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
-    addBotMessage('🚀 Enhanced CulturalBot is ready! I now use real free APIs to provide authentic, up-to-date information.', '🤖 System Ready');
+    addBotMessage('🚀 Enhanced CulturalBot is ready! Prioritizing live APIs for authentic, real-time information.', '🤖 System Ready');
     
-    // Show API capabilities
+    // Show API capabilities and status
     setTimeout(() => {
         const apiInfo = document.createElement('div');
         apiInfo.className = 'api-powered';
-        apiInfo.innerHTML = `
-            <strong>🔥 New Capabilities:</strong><br>
-            • Real-time weather from OpenWeatherMap<br>
-            • Live places data from OpenStreetMap<br>
-            • AI-powered responses from Hugging Face<br>
-            • Current events from NewsAPI<br>
-            • 80% faster response times with smart caching
-        `;
+        
+        // Check API status and provide appropriate messaging
+        const weatherLive = API_CONFIG.weather.enabled;
+        const placesLive = API_CONFIG.places.enabled;
+        const aiLive = API_CONFIG.ai.enabled;
+        const newsLive = API_CONFIG.news.enabled;
+        
+        let statusMessage = '<strong>🔥 Live Data Sources:</strong><br>';
+        
+        statusMessage += `• Weather: ${weatherLive ? '✅ Live OpenWeatherMap' : '⚠️ Demo data (add API key for live)'}<br>`;
+        statusMessage += `• Places: ${placesLive ? '✅ Live OpenStreetMap' : '❌ Error'}<br>`;
+        statusMessage += `• AI Responses: ${aiLive ? '✅ Live Hugging Face' : '⚠️ Demo data (add token for live)'}<br>`;
+        statusMessage += `• News/Events: ${newsLive ? '✅ Live NewsAPI' : '⚠️ Demo data (add API key for live)'}<br>`;
+        
+        if (!weatherLive || !aiLive || !newsLive) {
+            statusMessage += '<br><strong>💡 For full live experience:</strong> Add your API keys in config.js';
+        }
+        
+        apiInfo.innerHTML = statusMessage;
         document.getElementById('messages').appendChild(apiInfo);
         document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
     }, 1000);
@@ -132,8 +144,10 @@ class WeatherAPI {
             return cached.data;
         }
         
+        // Priority 1: Try live API if enabled
         if (API_CONFIG.weather.enabled) {
             try {
+                console.log('🌤️ Fetching LIVE weather data from OpenWeatherMap...');
                 const response = await fetch(
                     `${API_CONFIG.weather.baseUrl}/weather?q=${city}&appid=${API_CONFIG.weather.apiKey}&units=metric`
                 );
@@ -147,7 +161,7 @@ class WeatherAPI {
                         windSpeed: data.wind.speed,
                         pressure: data.main.pressure,
                         timestamp: new Date().toLocaleString(),
-                        source: 'OpenWeatherMap API',
+                        source: 'OpenWeatherMap API (LIVE)',
                         isRealTime: true
                     };
                     
@@ -158,14 +172,18 @@ class WeatherAPI {
                     });
                     
                     apiCallCount.weather++;
+                    console.log('✅ Successfully fetched LIVE weather data');
                     return weatherData;
+                } else {
+                    console.log('⚠️ Weather API response error:', response.status);
                 }
             } catch (error) {
-                console.error('Weather API error:', error);
+                console.error('❌ Weather API error:', error);
             }
         }
         
-        // Fallback to simulated data
+        // Priority 2: Fallback to demo data when API fails or not configured
+        console.log('📊 Using demo weather data (API unavailable or failed)');
         return this.getSimulatedWeather(city);
     }
     
@@ -178,7 +196,7 @@ class WeatherAPI {
             windSpeed: 5.2,
             pressure: 1013,
             timestamp: new Date().toLocaleString(),
-            source: 'Simulated (Demo)',
+            source: 'Demo Data (Add API key for live)',
             isRealTime: false
         };
     }
@@ -198,45 +216,343 @@ class PlacesAPI {
             return cached.data;
         }
         
+        // Priority 1: Always try live OpenStreetMap API first (it's free)
         try {
-            // Map categories to OSM amenity types
-            const amenityMap = {
-                food: 'restaurant',
-                culture: 'museum',
-                shopping: 'shop',
-                events: 'theatre'
-            };
+            console.log('📍 Fetching LIVE places data from OpenStreetMap...');
+            // Generate proper search queries for each category and city
+            const searchQueries = this.generateSearchQueries(city, category);
+            const allPlaces = [];
             
-            const amenity = amenityMap[category] || 'restaurant';
-            const response = await fetch(
-                `${API_CONFIG.places.baseUrl}/search?city=${city}&amenity=${amenity}&format=json&limit=5&addressdetails=1`
-            );
+            // Search for multiple query types to get diverse results
+            for (const query of searchQueries) {
+                try {
+                    const response = await fetch(
+                        `${API_CONFIG.places.baseUrl}/search?q=${encodeURIComponent(query)}&format=json&limit=3&addressdetails=1&bounded=1&extratags=1`
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const places = data
+                            .filter(place => place.display_name && place.lat && place.lon)
+                            .map(place => ({
+                                name: this.extractLocationName(place),
+                                address: place.display_name,
+                                lat: place.lat,
+                                lon: place.lon,
+                                type: place.type || place.class || 'attraction',
+                                category: place.class,
+                                importance: place.importance || 0,
+                                source: 'OpenStreetMap (LIVE)'
+                            }));
+                        
+                        allPlaces.push(...places);
+                    }
+                    
+                    // Add small delay between requests to be respectful to the API
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                } catch (queryError) {
+                    console.log(`Query failed: ${query}`, queryError);
+                }
+            }
             
-            if (response.ok) {
-                const data = await response.json();
-                const places = data.map(place => ({
-                    name: place.display_name.split(',')[0],
-                    address: place.display_name,
-                    lat: place.lat,
-                    lon: place.lon,
-                    type: place.type,
-                    source: 'OpenStreetMap'
-                }));
-                
+            // Remove duplicates and sort by importance
+            const uniquePlaces = this.removeDuplicates(allPlaces);
+            const sortedPlaces = uniquePlaces
+                .sort((a, b) => (b.importance || 0) - (a.importance || 0))
+                .slice(0, 5); // Limit to top 5 results
+            
+            // If we got good results from live API, use them
+            if (sortedPlaces.length > 0) {
                 // Cache the result
                 this.cache.set(cacheKey, {
-                    data: places,
+                    data: sortedPlaces,
                     timestamp: Date.now()
                 });
                 
                 apiCallCount.places++;
-                return places;
+                console.log('✅ Successfully fetched LIVE places data');
+                return sortedPlaces;
             }
+            
         } catch (error) {
-            console.error('Places API error:', error);
+            console.error('❌ Places API error:', error);
         }
         
-        return [];
+        // Priority 2: Fallback to curated demo data when API fails or returns no results
+        console.log('📊 Using demo places data (API failed or no results)');
+        return this.getFallbackPlaces(city, category);
+    }
+    
+    // Generate appropriate search queries based on city and category
+    static generateSearchQueries(city, category) {
+        const queries = [];
+        
+        // Comprehensive city-specific attractions by category
+        const cityData = {
+            delhi: {
+                culture: ['Red Fort Delhi', 'Qutub Minar Delhi', 'Humayun Tomb Delhi', 'Lotus Temple Delhi', 'National Museum Delhi'],
+                tourist: ['India Gate Delhi', 'Red Fort Delhi', 'Lotus Temple Delhi', 'Akshardham Temple Delhi'],
+                food: ['Chandni Chowk Delhi', 'Khan Market Delhi', 'Connaught Place Delhi'],
+                shopping: ['Connaught Place Delhi', 'Khan Market Delhi', 'Karol Bagh Delhi', 'Lajpat Nagar Delhi']
+            },
+            tokyo: {
+                culture: ['Senso-ji Temple Tokyo', 'Meiji Shrine Tokyo', 'Tokyo National Museum', 'Imperial Palace Tokyo'],
+                tourist: ['Tokyo Tower', 'Tokyo Skytree', 'Shibuya Crossing Tokyo', 'Asakusa Tokyo'],
+                food: ['Tsukiji Market Tokyo', 'Shibuya Tokyo', 'Harajuku Tokyo'],
+                shopping: ['Shibuya Tokyo', 'Harajuku Tokyo', 'Ginza Tokyo', 'Akihabara Tokyo']
+            },
+            mumbai: {
+                culture: ['Gateway of India Mumbai', 'Chhatrapati Shivaji Terminus Mumbai', 'Elephanta Caves Mumbai'],
+                tourist: ['Marine Drive Mumbai', 'Gateway of India Mumbai', 'Juhu Beach Mumbai'],
+                food: ['Mohammed Ali Road Mumbai', 'Linking Road Mumbai', 'Colaba Mumbai'],
+                shopping: ['Linking Road Mumbai', 'Colaba Causeway Mumbai', 'Crawford Market Mumbai']
+            },
+            paris: {
+                culture: ['Louvre Museum Paris', 'Notre Dame Paris', 'Musée d\'Orsay Paris', 'Sainte-Chapelle Paris'],
+                tourist: ['Eiffel Tower Paris', 'Arc de Triomphe Paris', 'Champs-Élysées Paris', 'Montmartre Paris'],
+                food: ['Latin Quarter Paris', 'Le Marais Paris', 'Saint-Germain Paris'],
+                shopping: ['Champs-Élysées Paris', 'Le Marais Paris', 'Galeries Lafayette Paris']
+            },
+            newyork: {
+                culture: ['Metropolitan Museum New York', 'MoMA New York', 'Guggenheim Museum New York'],
+                tourist: ['Statue of Liberty New York', 'Central Park New York', 'Times Square New York', 'Brooklyn Bridge New York'],
+                food: ['Little Italy New York', 'Chinatown New York', 'Greenwich Village New York'],
+                shopping: ['Fifth Avenue New York', 'SoHo New York', 'Times Square New York']
+            },
+            london: {
+                culture: ['British Museum London', 'Tate Modern London', 'National Gallery London', 'Westminster Abbey London'],
+                tourist: ['Big Ben London', 'Tower Bridge London', 'London Eye', 'Buckingham Palace London'],
+                food: ['Borough Market London', 'Camden Market London', 'Covent Garden London'],
+                shopping: ['Oxford Street London', 'Camden Market London', 'Portobello Road London']
+            },
+            istanbul: {
+                culture: ['Hagia Sophia Istanbul', 'Blue Mosque Istanbul', 'Topkapi Palace Istanbul'],
+                tourist: ['Galata Tower Istanbul', 'Bosphorus Bridge Istanbul', 'Taksim Square Istanbul'],
+                food: ['Grand Bazaar Istanbul', 'Eminönü Istanbul', 'Beyoğlu Istanbul'],
+                shopping: ['Grand Bazaar Istanbul', 'Istinye Park Istanbul', 'Galata Istanbul']
+            },
+            barcelona: {
+                culture: ['Sagrada Familia Barcelona', 'Park Güell Barcelona', 'Picasso Museum Barcelona'],
+                tourist: ['Casa Batlló Barcelona', 'Gothic Quarter Barcelona', 'La Rambla Barcelona'],
+                food: ['Boquería Market Barcelona', 'Gothic Quarter Barcelona', 'Gràcia Barcelona'],
+                shopping: ['Passeig de Gràcia Barcelona', 'Gothic Quarter Barcelona', 'El Born Barcelona']
+            }
+        };
+        
+        // Get city-specific queries for the category
+        const cityQueries = cityData[city];
+        if (cityQueries && cityQueries[category]) {
+            queries.push(...cityQueries[category].slice(0, 3));
+        }
+        
+        // Add fallback generic searches if no city-specific data
+        if (queries.length === 0) {
+            switch (category) {
+                case 'culture':
+                    queries.push(`museums ${city}`, `temples ${city}`, `heritage sites ${city}`, `art galleries ${city}`);
+                    break;
+                case 'food':
+                    queries.push(`restaurants ${city}`, `food markets ${city}`, `local cuisine ${city}`, `street food ${city}`);
+                    break;
+                case 'shopping':
+                    queries.push(`shopping centers ${city}`, `markets ${city}`, `shopping districts ${city}`, `malls ${city}`);
+                    break;
+                case 'tourist':
+                case 'places':
+                default:
+                    queries.push(`tourist attractions ${city}`, `landmarks ${city}`, `monuments ${city}`, `famous places ${city}`);
+                    break;
+            }
+        }
+        
+        // Add some generic backup queries
+        queries.push(`${category} in ${city}`, `top ${category} ${city}`);
+        
+        return queries.slice(0, 5); // Limit to 5 queries for better coverage
+    }
+    
+    // Extract a clean location name from the API response
+    static extractLocationName(place) {
+        // Try to get a clean name from various fields
+        if (place.namedetails && place.namedetails.name) {
+            return place.namedetails.name;
+        }
+        
+        if (place.display_name) {
+            // Take the first part before the first comma
+            const firstPart = place.display_name.split(',')[0].trim();
+            return firstPart;
+        }
+        
+        return place.name || place.type || 'Unnamed Location';
+    }
+    
+    // Remove duplicate places based on name and coordinates
+    static removeDuplicates(places) {
+        const seen = new Set();
+        return places.filter(place => {
+            const key = `${place.name.toLowerCase()}_${Math.round(place.lat * 1000)}_${Math.round(place.lon * 1000)}`;
+            if (seen.has(key)) {
+                return false;
+            }
+            seen.add(key);
+            return true;
+        });
+    }
+    
+    // Fallback places when API fails
+    static getFallbackPlaces(city, category) {
+        const fallbacks = {
+            delhi: {
+                culture: [
+                    { name: 'Red Fort', address: 'Netaji Subhash Marg, Lal Qila, Delhi', type: 'historical_monument', source: 'Demo Data (API failed)' },
+                    { name: 'Qutub Minar', address: 'Mehrauli, Delhi', type: 'unesco_heritage', source: 'Demo Data (API failed)' },
+                    { name: 'Humayun\'s Tomb', address: 'Mathura Road, Delhi', type: 'mughal_architecture', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'India Gate', address: 'Rajpath, New Delhi', type: 'war_memorial', source: 'Demo Data (API failed)' },
+                    { name: 'Lotus Temple', address: 'Lotus Temple Road, Delhi', type: 'bahai_temple', source: 'Demo Data (API failed)' },
+                    { name: 'Akshardham Temple', address: 'Noida Mor, Delhi', type: 'hindu_temple', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Connaught Place', address: 'Connaught Place, New Delhi', type: 'shopping_district', source: 'Demo Data (API failed)' },
+                    { name: 'Khan Market', address: 'Khan Market, New Delhi', type: 'market', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Chandni Chowk', address: 'Chandni Chowk, Old Delhi', type: 'food_street', source: 'Demo Data (API failed)' },
+                    { name: 'Paranthe Wali Gali', address: 'Chandni Chowk, Delhi', type: 'food_lane', source: 'Demo Data (API failed)' }
+                ]
+            },
+            tokyo: {
+                culture: [
+                    { name: 'Senso-ji Temple', address: 'Asakusa, Tokyo', type: 'buddhist_temple', source: 'Demo Data (API failed)' },
+                    { name: 'Meiji Shrine', address: 'Shibuya, Tokyo', type: 'shinto_shrine', source: 'Demo Data (API failed)' },
+                    { name: 'Tokyo National Museum', address: 'Ueno, Tokyo', type: 'museum', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'Tokyo Tower', address: 'Minato, Tokyo', type: 'landmark', source: 'Demo Data (API failed)' },
+                    { name: 'Tokyo Skytree', address: 'Sumida, Tokyo', type: 'broadcasting_tower', source: 'Demo Data (API failed)' },
+                    { name: 'Shibuya Crossing', address: 'Shibuya, Tokyo', type: 'intersection', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Shibuya', address: 'Shibuya, Tokyo', type: 'shopping_district', source: 'Demo Data (API failed)' },
+                    { name: 'Harajuku', address: 'Harajuku, Tokyo', type: 'fashion_district', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Tsukiji Outer Market', address: 'Chuo, Tokyo', type: 'fish_market', source: 'Demo Data (API failed)' },
+                    { name: 'Ramen Yokocho', address: 'Shinjuku, Tokyo', type: 'ramen_alley', source: 'Demo Data (API failed)' }
+                ]
+            },
+            mumbai: {
+                culture: [
+                    { name: 'Gateway of India', address: 'Apollo Bunder, Mumbai', type: 'historical_monument', source: 'Demo Data (API failed)' },
+                    { name: 'Chhatrapati Shivaji Terminus', address: 'Fort, Mumbai', type: 'railway_station', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'Marine Drive', address: 'Marine Drive, Mumbai', type: 'promenade', source: 'Demo Data (API failed)' },
+                    { name: 'Juhu Beach', address: 'Juhu, Mumbai', type: 'beach', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Linking Road', address: 'Bandra West, Mumbai', type: 'shopping_street', source: 'Demo Data (API failed)' },
+                    { name: 'Colaba Causeway', address: 'Colaba, Mumbai', type: 'shopping_street', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Mohammed Ali Road', address: 'Mohammed Ali Road, Mumbai', type: 'food_street', source: 'Demo Data (API failed)' }
+                ]
+            },
+            paris: {
+                culture: [
+                    { name: 'Louvre Museum', address: 'Rue de Rivoli, Paris', type: 'art_museum', source: 'Demo Data (API failed)' },
+                    { name: 'Notre-Dame', address: 'Île de la Cité, Paris', type: 'cathedral', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'Eiffel Tower', address: 'Champ de Mars, Paris', type: 'iron_tower', source: 'Demo Data (API failed)' },
+                    { name: 'Arc de Triomphe', address: 'Place Charles de Gaulle, Paris', type: 'triumphal_arch', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Champs-Élysées', address: 'Champs-Élysées, Paris', type: 'shopping_avenue', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Latin Quarter', address: 'Latin Quarter, Paris', type: 'dining_district', source: 'Demo Data (API failed)' }
+                ]
+            },
+            newyork: {
+                culture: [
+                    { name: 'Metropolitan Museum', address: 'Upper East Side, New York', type: 'art_museum', source: 'Demo Data (API failed)' },
+                    { name: 'MoMA', address: 'Midtown Manhattan, New York', type: 'modern_art_museum', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'Statue of Liberty', address: 'Liberty Island, New York', type: 'statue', source: 'Demo Data (API failed)' },
+                    { name: 'Central Park', address: 'Manhattan, New York', type: 'urban_park', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Fifth Avenue', address: 'Fifth Avenue, Manhattan', type: 'shopping_avenue', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Little Italy', address: 'Little Italy, Manhattan', type: 'ethnic_neighborhood', source: 'Demo Data (API failed)' }
+                ]
+            },
+            london: {
+                culture: [
+                    { name: 'British Museum', address: 'Great Russell Street, London', type: 'history_museum', source: 'Demo Data (API failed)' },
+                    { name: 'Tate Modern', address: 'Bankside, London', type: 'art_gallery', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'Big Ben', address: 'Westminster, London', type: 'clock_tower', source: 'Demo Data (API failed)' },
+                    { name: 'Tower Bridge', address: 'Tower Hamlets, London', type: 'bridge', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Oxford Street', address: 'Oxford Street, London', type: 'shopping_street', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Borough Market', address: 'Southwark, London', type: 'food_market', source: 'Demo Data (API failed)' }
+                ]
+            },
+            istanbul: {
+                culture: [
+                    { name: 'Hagia Sophia', address: 'Sultanahmet, Istanbul', type: 'historical_building', source: 'Demo Data (API failed)' },
+                    { name: 'Topkapi Palace', address: 'Sultanahmet, Istanbul', type: 'palace_museum', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'Blue Mosque', address: 'Sultanahmet, Istanbul', type: 'mosque', source: 'Demo Data (API failed)' },
+                    { name: 'Galata Tower', address: 'Galata, Istanbul', type: 'medieval_tower', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Grand Bazaar', address: 'Beyazıt, Istanbul', type: 'covered_market', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Eminönü', address: 'Eminönü, Istanbul', type: 'food_district', source: 'Demo Data (API failed)' }
+                ]
+            },
+            barcelona: {
+                culture: [
+                    { name: 'Sagrada Familia', address: 'Sagrada Família, Barcelona', type: 'basilica', source: 'Demo Data (API failed)' },
+                    { name: 'Park Güell', address: 'Gràcia, Barcelona', type: 'public_park', source: 'Demo Data (API failed)' }
+                ],
+                tourist: [
+                    { name: 'Casa Batlló', address: 'Passeig de Gràcia, Barcelona', type: 'modernist_building', source: 'Demo Data (API failed)' },
+                    { name: 'Gothic Quarter', address: 'Ciutat Vella, Barcelona', type: 'historic_district', source: 'Demo Data (API failed)' }
+                ],
+                shopping: [
+                    { name: 'Passeig de Gràcia', address: 'Passeig de Gràcia, Barcelona', type: 'shopping_avenue', source: 'Demo Data (API failed)' }
+                ],
+                food: [
+                    { name: 'Boquería Market', address: 'La Rambla, Barcelona', type: 'public_market', source: 'Demo Data (API failed)' }
+                ]
+            }
+        };
+        
+        // Get city and category specific fallbacks
+        const cityFallbacks = fallbacks[city];
+        if (cityFallbacks && cityFallbacks[category]) {
+            return cityFallbacks[category];
+        }
+        
+        // Generic fallback if no specific data available
+        return [
+            { name: `Popular ${category} destination in ${city}`, address: `${city} city center`, type: category, source: 'Demo Data (API failed)' },
+            { name: `Local ${category} spot in ${city}`, address: `${city} downtown area`, type: category, source: 'Demo Data (API failed)' }
+        ];
     }
 }
 
@@ -284,12 +600,62 @@ class AIAPI {
     
     static getSimulatedResponse(message) {
         const lower = message.toLowerCase();
-        if (lower.includes('weather')) return { intent: 'weather', confidence: 0.9 };
-        if (lower.includes('food') || lower.includes('restaurant')) return { intent: 'food', confidence: 0.9 };
-        if (lower.includes('culture') || lower.includes('museum')) return { intent: 'culture', confidence: 0.9 };
-        if (lower.includes('event')) return { intent: 'events', confidence: 0.9 };
-        if (lower.includes('clothing') || lower.includes('traditional') || lower.includes('wear')) return { intent: 'clothing', confidence: 0.9 };
-        if (lower.includes('local') || lower.includes('recommendation') || lower.includes('guide')) return { intent: 'local', confidence: 0.9 };
+        
+        // Weather-related queries
+        if (lower.includes('weather') || lower.includes('temperature') || lower.includes('climate') || lower.includes('forecast')) {
+            return { intent: 'weather', confidence: 0.9 };
+        }
+        
+        // Food-related queries
+        if (lower.includes('food') || lower.includes('restaurant') || lower.includes('eat') || lower.includes('dining') || 
+            lower.includes('cuisine') || lower.includes('lunch') || lower.includes('dinner') || lower.includes('breakfast') ||
+            lower.includes('cafe') || lower.includes('local food') || lower.includes('street food')) {
+            return { intent: 'food', confidence: 0.9 };
+        }
+        
+        // Culture-related queries
+        if (lower.includes('culture') || lower.includes('museum') || lower.includes('temple') || lower.includes('heritage') ||
+            lower.includes('historical') || lower.includes('monument') || lower.includes('cultural sites') || 
+            lower.includes('art') || lower.includes('gallery') || lower.includes('cultural attractions')) {
+            return { intent: 'culture', confidence: 0.9 };
+        }
+        
+        // Shopping-related queries
+        if (lower.includes('shopping') || lower.includes('shop') || lower.includes('market') || lower.includes('mall') ||
+            lower.includes('buy') || lower.includes('store') || lower.includes('shopping area') || lower.includes('boutique') ||
+            lower.includes('bazaar') || lower.includes('shopping district')) {
+            return { intent: 'shopping', confidence: 0.9 };
+        }
+        
+        // Events-related queries
+        if (lower.includes('event') || lower.includes('festival') || lower.includes('concert') || lower.includes('show') ||
+            lower.includes('happening') || lower.includes('activities') || lower.includes('entertainment') || 
+            lower.includes('nightlife') || lower.includes('what to do')) {
+            return { intent: 'events', confidence: 0.9 };
+        }
+        
+        // Traditional clothing queries
+        if (lower.includes('clothing') || lower.includes('traditional') || lower.includes('wear') || lower.includes('dress') ||
+            lower.includes('costume') || lower.includes('attire') || lower.includes('kimono') || lower.includes('saree') ||
+            lower.includes('traditional wear') || lower.includes('cultural clothing')) {
+            return { intent: 'clothing', confidence: 0.9 };
+        }
+        
+        // Places/Tourist attractions queries
+        if (lower.includes('places') || lower.includes('attractions') || lower.includes('landmarks') || lower.includes('visit') ||
+            lower.includes('sightseeing') || lower.includes('tourist') || lower.includes('interesting places') || 
+            lower.includes('must see') || lower.includes('famous places') || lower.includes('tourist attractions')) {
+            return { intent: 'places', confidence: 0.9 };
+        }
+        
+        // Local recommendations queries
+        if (lower.includes('local') || lower.includes('recommendation') || lower.includes('guide') || 
+            lower.includes('comprehensive') || lower.includes('local guide') || lower.includes('insider tips') ||
+            lower.includes('what locals do') || lower.includes('local experience') || lower.includes('comprehensive guide')) {
+            return { intent: 'local', confidence: 0.9 };
+        }
+        
+        // Default to general
         return { intent: 'general', confidence: 0.7 };
     }
 }
@@ -681,6 +1047,9 @@ async function sendMessage(message) {
             case 'places':
                 await handlePlacesQuery();
                 break;
+            case 'shopping':
+                await handleShoppingQuery();
+                break;
             case 'clothing':
                 await handleEnhancedClothingQuery();
                 break;
@@ -730,7 +1099,7 @@ async function handleWeatherQuery() {
 async function handleFoodQuery() {
     const places = await PlacesAPI.searchPlaces(currentCity, 'food');
     
-    addBotMessage(`Found restaurants in ${currentCity}:`, '🍽️ Food Places');
+    addBotMessage(`Best food places and restaurants in ${currentCity}:`, '🍽️ Local Cuisine');
     
     if (places.length > 0) {
         places.forEach(place => {
@@ -739,13 +1108,21 @@ async function handleFoodQuery() {
             placeDiv.innerHTML = `
                 <h4>${place.name}</h4>
                 <p><strong>📍 Address:</strong> ${place.address}</p>
+                <p><strong>🍽️ Type:</strong> ${place.type}</p>
+                <p><strong>⭐ Category:</strong> ${place.category || 'Restaurant/Food'}</p>
                 <p><strong>📊 Source:</strong> ${place.source}</p>
-                <p><strong>🗺️ Coordinates:</strong> ${place.lat}, ${place.lon}</p>
+                ${place.lat && place.lon ? `<p><strong>🗺️ Coordinates:</strong> ${place.lat}, ${place.lon}</p>` : ''}
             `;
             document.getElementById('messages').appendChild(placeDiv);
         });
+        
+        // Add food tip
+        const tipDiv = document.createElement('div');
+        tipDiv.className = 'api-powered';
+        tipDiv.innerHTML = `🍴 <strong>Food tip:</strong> Don't forget to try local specialties and street food for an authentic experience!`;
+        document.getElementById('messages').appendChild(tipDiv);
     } else {
-        addBotMessage('No specific restaurants found via API. Try asking for general food recommendations!', '🤖 Suggestion');
+        addBotMessage('Unable to find specific restaurants via API. I recommend exploring local food markets, asking locals for recommendations, or checking food review apps!', '🤖 Food Suggestion');
     }
 }
 
@@ -770,7 +1147,7 @@ async function handleEventsQuery() {
 async function handleCultureQuery() {
     const places = await PlacesAPI.searchPlaces(currentCity, 'culture');
     
-    addBotMessage(`Cultural sites in ${currentCity}:`, '🏛️ Culture');
+    addBotMessage(`Cultural sites and attractions in ${currentCity}:`, '🏛️ Cultural Sites');
     
     if (places.length > 0) {
         places.forEach(place => {
@@ -780,19 +1157,21 @@ async function handleCultureQuery() {
                 <h4>${place.name}</h4>
                 <p><strong>📍 Location:</strong> ${place.address}</p>
                 <p><strong>🏛️ Type:</strong> ${place.type}</p>
+                <p><strong>⭐ Category:</strong> ${place.category || 'Cultural Site'}</p>
                 <p><strong>📊 Source:</strong> ${place.source}</p>
+                ${place.lat && place.lon ? `<p><strong>🗺️ Coordinates:</strong> ${place.lat}, ${place.lon}</p>` : ''}
             `;
             document.getElementById('messages').appendChild(placeDiv);
         });
     } else {
-        addBotMessage('Check local tourism websites for museums and cultural attractions!', '🤖 Suggestion');
+        addBotMessage('Unable to find specific cultural sites via API. Try visiting local tourism centers for museum and heritage site information!', '🤖 Suggestion');
     }
 }
 
 async function handlePlacesQuery() {
-    const places = await PlacesAPI.searchPlaces(currentCity, 'shopping');
+    const places = await PlacesAPI.searchPlaces(currentCity, 'tourist');
     
-    addBotMessage(`Places to visit in ${currentCity}:`, '📍 Places');
+    addBotMessage(`Top tourist attractions and landmarks in ${currentCity}:`, '📍 Tourist Attractions');
     
     if (places.length > 0) {
         places.forEach(place => {
@@ -801,12 +1180,45 @@ async function handlePlacesQuery() {
             placeDiv.innerHTML = `
                 <h4>${place.name}</h4>
                 <p><strong>📍 Address:</strong> ${place.address}</p>
+                <p><strong>🏛️ Type:</strong> ${place.type}</p>
+                <p><strong>⭐ Category:</strong> ${place.category || 'Tourist Attraction'}</p>
                 <p><strong>📊 Source:</strong> ${place.source}</p>
+                ${place.lat && place.lon ? `<p><strong>🗺️ Coordinates:</strong> ${place.lat}, ${place.lon}</p>` : ''}
+            `;
+            document.getElementById('messages').appendChild(placeDiv);
+        });
+        
+        // Add helpful tip
+        const tipDiv = document.createElement('div');
+        tipDiv.className = 'api-powered';
+        tipDiv.innerHTML = `💡 <strong>Pro tip:</strong> These are major landmarks and attractions. For more detailed information, check official tourism websites or local guides!`;
+        document.getElementById('messages').appendChild(tipDiv);
+    } else {
+        addBotMessage('Unable to find specific attractions via API. I recommend checking official tourism websites or asking locals for the best places to visit!', '🤖 Suggestion');
+    }
+}
+
+async function handleShoppingQuery() {
+    const places = await PlacesAPI.searchPlaces(currentCity, 'shopping');
+    
+    addBotMessage(`Shopping areas and markets in ${currentCity}:`, '🛍️ Shopping');
+    
+    if (places.length > 0) {
+        places.forEach(place => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'recommendation';
+            placeDiv.innerHTML = `
+                <h4>${place.name}</h4>
+                <p><strong>📍 Address:</strong> ${place.address}</p>
+                <p><strong>🏪 Type:</strong> ${place.type}</p>
+                <p><strong>⭐ Category:</strong> ${place.category || 'Shopping'}</p>
+                <p><strong>📊 Source:</strong> ${place.source}</p>
+                ${place.lat && place.lon ? `<p><strong>🗺️ Coordinates:</strong> ${place.lat}, ${place.lon}</p>` : ''}
             `;
             document.getElementById('messages').appendChild(placeDiv);
         });
     } else {
-        addBotMessage('Try exploring local shopping districts and markets!', '🤖 Suggestion');
+        addBotMessage('Try exploring local markets and shopping districts! Check tourism websites for popular shopping areas.', '🤖 Suggestion');
     }
 }
 
@@ -824,14 +1236,14 @@ function handleCategoryClick(category) {
     event.target.classList.add('active');
     
     const categoryMessages = {
-        food: 'Find nearby restaurants',
-        places: 'Show me interesting places',
-        weather: 'Get current weather',
-        events: 'What events are happening',
-        culture: 'Show cultural sites',
-        shopping: 'Find shopping areas',
-        clothing: 'Show traditional clothing options',
-        local: 'Give me comprehensive local recommendations'
+        food: 'Find the best restaurants and local food places',
+        places: 'Show me top tourist attractions and landmarks',
+        weather: 'Get current weather conditions',
+        events: 'What cultural events and activities are happening',
+        culture: 'Show museums temples and cultural sites',
+        shopping: 'Find the best shopping districts and markets',
+        clothing: 'Show traditional clothing and cultural wear options',
+        local: 'Give me comprehensive local recommendations and insider tips'
     };
     
     sendMessage(categoryMessages[category] || 'Tell me about this category');
