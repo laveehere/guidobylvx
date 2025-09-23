@@ -767,35 +767,254 @@ function createQuickActions() {
 
 // Initialize quick actions after page load
 setTimeout(createQuickActions, 2000);
-// SIMPLE FIX - Just add this to the END of your existing file
 
-// Missing sendMessage function that your HTML needs
-function sendMessage(predefinedMessage = null) {
+// ========== MISSING CRITICAL FUNCTIONS - ADD TO END OF FILE ==========
+
+// Main message processing function
+async function sendMessage(predefinedMessage = null) {
     const messageInput = document.getElementById('messageInput');
     const message = predefinedMessage || (messageInput ? messageInput.value.trim() : '');
     
     if (!message) return;
     
-    // Add user message
-    addUserMessage(message);
-    
-    // Clear input
+    // Clear input if not predefined message
     if (messageInput && !predefinedMessage) {
         messageInput.value = '';
     }
     
-    // Handle the message with your existing logic
-    if (typeof handleUserMessage === 'function') {
-        handleUserMessage(message);
-    } else if (typeof processUserInput === 'function') {
-        processUserInput(message);
-    } else {
-        // Fallback - just echo
-        addBotMessage(`I received: ${message}`, '🤖 Bot');
+    // Add user message
+    addUserMessage(message);
+    
+    // Show loading
+    showLoading();
+    
+    try {
+        // Simple intent detection
+        const intent = detectIntent(message);
+        
+        // Handle based on detected intent
+        switch (intent) {
+            case 'weather':
+                await handleWeatherQuery();
+                break;
+            case 'food':
+                await handleFoodQuery();
+                break;
+            case 'culture':
+                await handleCultureQuery();
+                break;
+            case 'shopping':
+                await handleShoppingQuery();
+                break;
+            case 'places':
+            case 'tourist':
+                await handlePlacesQuery();
+                break;
+            default:
+                await handleGeneralQuery(message);
+        }
+        
+    } catch (error) {
+        console.error('Error processing message:', error);
+        addBotMessage('Sorry, I encountered an error. Please try again.', '❌ Error');
+    } finally {
+        hideLoading();
     }
 }
 
-// Just add this at the very end - don't change anything else
-function sendMessage(msg) { 
-    console.log('Message:', msg || document.getElementById('messageInput')?.value); 
+// Simple intent detection
+function detectIntent(message) {
+    const lower = message.toLowerCase();
+    
+    if (lower.includes('weather') || lower.includes('temperature')) return 'weather';
+    if (lower.includes('food') || lower.includes('restaurant') || lower.includes('eat')) return 'food';
+    if (lower.includes('culture') || lower.includes('museum') || lower.includes('temple')) return 'culture';
+    if (lower.includes('shopping') || lower.includes('shop') || lower.includes('market')) return 'shopping';
+    if (lower.includes('places') || lower.includes('attraction') || lower.includes('tourist')) return 'places';
+    
+    return 'general';
 }
+
+// Add user message to chat
+function addUserMessage(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message user-message';
+    messageDiv.textContent = message;
+    document.getElementById('messages').appendChild(messageDiv);
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    
+    // Debug log
+    console.log('Message:', message);
+}
+
+// Add bot message to chat
+function addBotMessage(message, category = '🤖 CulturalBot') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot-message';
+    messageDiv.innerHTML = `
+        <div class="category">${category}</div>
+        <p>${message}</p>
+    `;
+    document.getElementById('messages').appendChild(messageDiv);
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+// Handle category button clicks
+function handleCategoryClick(category) {
+    const categoryMessages = {
+        food: 'Find the best restaurants and local food places',
+        places: 'Show me top tourist attractions and landmarks', 
+        culture: 'Show museums temples and cultural sites',
+        shopping: 'Find the best shopping districts and markets',
+        weather: 'Get current weather conditions'
+    };
+    
+    sendMessage(categoryMessages[category] || 'Tell me about this category');
+}
+
+// Show/hide loading indicator
+function showLoading() {
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'block';
+}
+
+function hideLoading() {
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'none';
+}
+
+// Handler functions
+async function handleWeatherQuery() {
+    const weather = await WeatherAPI.getCurrentWeather(currentCity);
+    
+    addBotMessage(`Here's the current weather in ${currentCity}:`, '🌤️ Weather');
+    
+    const weatherDiv = document.createElement('div');
+    weatherDiv.className = 'weather-info';
+    weatherDiv.innerHTML = `
+        <h4>🌡️ ${weather.temperature}°C</h4>
+        <p><strong>Condition:</strong> ${weather.description}</p>
+        <p><strong>Humidity:</strong> ${weather.humidity}%</p>
+        <p><strong>Wind:</strong> ${weather.windSpeed} m/s</p>
+        <p><small>📡 Source: ${weather.source}</small></p>
+    `;
+    document.getElementById('messages').appendChild(weatherDiv);
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+async function handleFoodQuery() {
+    const places = await AIPlacesAPI.searchPlaces(currentCity, 'food');
+    
+    addBotMessage(`Here are the best food places in ${currentCity}:`, '🍽️ Food Places');
+    
+    if (places.length > 0) {
+        places.forEach(place => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'recommendation';
+            placeDiv.innerHTML = `
+                <h4>🍽️ ${place.name}</h4>
+                <p>${place.address}</p>
+                <p><small>📡 ${place.source}</small></p>
+            `;
+            document.getElementById('messages').appendChild(placeDiv);
+        });
+    } else {
+        addBotMessage('No food places found. Try a different search!', '⚠️ No Results');
+    }
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+async function handleCultureQuery() {
+    const places = await AIPlacesAPI.searchPlaces(currentCity, 'culture');
+    
+    addBotMessage(`Here are the cultural sites in ${currentCity}:`, '🏛️ Culture');
+    
+    if (places.length > 0) {
+        places.forEach(place => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'recommendation';
+            placeDiv.innerHTML = `
+                <h4>🏛️ ${place.name}</h4>
+                <p>${place.address}</p>
+                <p><small>📡 ${place.source}</small></p>
+            `;
+            document.getElementById('messages').appendChild(placeDiv);
+        });
+    } else {
+        addBotMessage('No cultural sites found. Try a different search!', '⚠️ No Results');
+    }
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+async function handleShoppingQuery() {
+    const places = await AIPlacesAPI.searchPlaces(currentCity, 'shopping');
+    
+    addBotMessage(`Here are the shopping areas in ${currentCity}:`, '🛍️ Shopping');
+    
+    if (places.length > 0) {
+        places.forEach(place => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'recommendation';
+            placeDiv.innerHTML = `
+                <h4>🛍️ ${place.name}</h4>
+                <p>${place.address}</p>
+                <p><small>📡 ${place.source}</small></p>
+            `;
+            document.getElementById('messages').appendChild(placeDiv);
+        });
+    } else {
+        addBotMessage('No shopping areas found. Try a different search!', '⚠️ No Results');
+    }
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+async function handlePlacesQuery() {
+    const places = await AIPlacesAPI.searchPlaces(currentCity, 'tourist');
+    
+    addBotMessage(`Here are the top attractions in ${currentCity}:`, '🗺️ Places');
+    
+    if (places.length > 0) {
+        places.forEach(place => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'recommendation';
+            placeDiv.innerHTML = `
+                <h4>📍 ${place.name}</h4>
+                <p>${place.address}</p>
+                <p><small>📡 ${place.source}</small></p>
+            `;
+            document.getElementById('messages').appendChild(placeDiv);
+        });
+    } else {
+        addBotMessage('No attractions found. Try a different search!', '⚠️ No Results');
+    }
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+async function handleGeneralQuery(message) {
+    addBotMessage(`I understand you're asking about: "${message}". Let me help you with specific information!`, '🤖 Assistant');
+    
+    // Try to provide helpful suggestions
+    const suggestions = [
+        'Ask about weather in the current city',
+        'Find restaurants and food places', 
+        'Discover cultural sites and museums',
+        'Explore shopping areas and markets',
+        'Get tourist attractions and landmarks'
+    ];
+    
+    const suggestDiv = document.createElement('div');
+    suggestDiv.className = 'quick-suggestions';
+    suggestDiv.innerHTML = `
+        <p><strong>Try asking about:</strong></p>
+        <ul>
+            ${suggestions.map(s => `<li>${s}</li>`).join('')}
+        </ul>
+    `;
+    document.getElementById('messages').appendChild(suggestDiv);
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+// Console ready message
+console.log('🔧 Critical functions added - buttons should work now!');
+
+
