@@ -285,91 +285,89 @@ class PlacesAPI {
     
     // Generate appropriate search queries based on city and category
     static generateSearchQueries(city, category) {
-        const queries = [];
-        
-        // Comprehensive city-specific attractions by category
-        const cityData = {
-            delhi: {
-                culture: ['Red Fort Delhi', 'Qutub Minar Delhi', 'Humayun Tomb Delhi', 'Lotus Temple Delhi', 'National Museum Delhi'],
-                tourist: ['India Gate Delhi', 'Red Fort Delhi', 'Lotus Temple Delhi', 'Akshardham Temple Delhi'],
-                food: ['Chandni Chowk Delhi', 'Khan Market Delhi', 'Connaught Place Delhi'],
-                shopping: ['Connaught Place Delhi', 'Khan Market Delhi', 'Karol Bagh Delhi', 'Lajpat Nagar Delhi']
-            },
-            tokyo: {
-                culture: ['Senso-ji Temple Tokyo', 'Meiji Shrine Tokyo', 'Tokyo National Museum', 'Imperial Palace Tokyo'],
-                tourist: ['Tokyo Tower', 'Tokyo Skytree', 'Shibuya Crossing Tokyo', 'Asakusa Tokyo'],
-                food: ['Tsukiji Market Tokyo', 'Shibuya Tokyo', 'Harajuku Tokyo'],
-                shopping: ['Shibuya Tokyo', 'Harajuku Tokyo', 'Ginza Tokyo', 'Akihabara Tokyo']
-            },
-            mumbai: {
-                culture: ['Gateway of India Mumbai', 'Chhatrapati Shivaji Terminus Mumbai', 'Elephanta Caves Mumbai'],
-                tourist: ['Marine Drive Mumbai', 'Gateway of India Mumbai', 'Juhu Beach Mumbai'],
-                food: ['Mohammed Ali Road Mumbai', 'Linking Road Mumbai', 'Colaba Mumbai'],
-                shopping: ['Linking Road Mumbai', 'Colaba Causeway Mumbai', 'Crawford Market Mumbai']
-            },
-            paris: {
-                culture: ['Louvre Museum Paris', 'Notre Dame Paris', 'Musée d\'Orsay Paris', 'Sainte-Chapelle Paris'],
-                tourist: ['Eiffel Tower Paris', 'Arc de Triomphe Paris', 'Champs-Élysées Paris', 'Montmartre Paris'],
-                food: ['Latin Quarter Paris', 'Le Marais Paris', 'Saint-Germain Paris'],
-                shopping: ['Champs-Élysées Paris', 'Le Marais Paris', 'Galeries Lafayette Paris']
-            },
-            newyork: {
-                culture: ['Metropolitan Museum New York', 'MoMA New York', 'Guggenheim Museum New York'],
-                tourist: ['Statue of Liberty New York', 'Central Park New York', 'Times Square New York', 'Brooklyn Bridge New York'],
-                food: ['Little Italy New York', 'Chinatown New York', 'Greenwich Village New York'],
-                shopping: ['Fifth Avenue New York', 'SoHo New York', 'Times Square New York']
-            },
-            london: {
-                culture: ['British Museum London', 'Tate Modern London', 'National Gallery London', 'Westminster Abbey London'],
-                tourist: ['Big Ben London', 'Tower Bridge London', 'London Eye', 'Buckingham Palace London'],
-                food: ['Borough Market London', 'Camden Market London', 'Covent Garden London'],
-                shopping: ['Oxford Street London', 'Camden Market London', 'Portobello Road London']
-            },
-            istanbul: {
-                culture: ['Hagia Sophia Istanbul', 'Blue Mosque Istanbul', 'Topkapi Palace Istanbul'],
-                tourist: ['Galata Tower Istanbul', 'Bosphorus Bridge Istanbul', 'Taksim Square Istanbul'],
-                food: ['Grand Bazaar Istanbul', 'Eminönü Istanbul', 'Beyoğlu Istanbul'],
-                shopping: ['Grand Bazaar Istanbul', 'Istinye Park Istanbul', 'Galata Istanbul']
-            },
-            barcelona: {
-                culture: ['Sagrada Familia Barcelona', 'Park Güell Barcelona', 'Picasso Museum Barcelona'],
-                tourist: ['Casa Batlló Barcelona', 'Gothic Quarter Barcelona', 'La Rambla Barcelona'],
-                food: ['Boquería Market Barcelona', 'Gothic Quarter Barcelona', 'Gràcia Barcelona'],
-                shopping: ['Passeig de Gràcia Barcelona', 'Gothic Quarter Barcelona', 'El Born Barcelona']
-            }
-        };
-        
-        // Get city-specific queries for the category
-        const cityQueries = cityData[city];
-        if (cityQueries && cityQueries[category]) {
-            queries.push(...cityQueries[category].slice(0, 3));
+    const queries = [];
+
+    const cityData = {
+        delhi: {
+            culture: ['Red Fort Delhi', 'Qutub Minar Delhi', 'Humayun Tomb Delhi', 'Lotus Temple Delhi', 'National Museum Delhi'],
+            tourist: ['India Gate Delhi', 'Red Fort Delhi', 'Lotus Temple Delhi', 'Akshardham Temple Delhi'],
+            food: ['restaurants Delhi', 'popular restaurants Delhi', 'local food Delhi', 'best places to eat Delhi'],
+            shopping: ['markets Delhi', 'famous shopping markets Delhi', 'shopping districts Delhi', 'local bazaars Delhi']
+        },
+        tokyo: {
+            culture: ['Senso-ji Temple Tokyo', 'Meiji Shrine Tokyo', 'Tokyo National Museum', 'Imperial Palace Tokyo'],
+            tourist: ['Tokyo Tower', 'Tokyo Skytree', 'Shibuya Crossing Tokyo', 'Asakusa Tokyo'],
+            food: ['restaurants Tokyo', 'Tsukiji Market Tokyo', 'best sushi Tokyo', 'local food Tokyo'],
+            shopping: ['Shibuya shopping district Tokyo', 'Harajuku shopping Tokyo', 'Ginza Tokyo markets', 'Akihabara Tokyo']
+        },
+        mumbai: {
+            culture: ['Gateway of India Mumbai', 'Chhatrapati Shivaji Terminus Mumbai', 'Elephanta Caves Mumbai'],
+            tourist: ['Marine Drive Mumbai', 'Gateway of India Mumbai', 'Juhu Beach Mumbai'],
+            food: ['restaurants Mumbai', 'Mohammed Ali Road Mumbai', 'best street food Mumbai', 'local food Mumbai'],
+            shopping: ['Linking Road Mumbai', 'Colaba Causeway Mumbai', 'Crawford Market Mumbai', 'Fashion Street Mumbai']
+        },
+        paris: {
+            culture: ['Louvre Museum Paris', 'Notre Dame Paris', 'Musée d\'Orsay Paris', 'Sainte-Chapelle Paris'],
+            tourist: ['Eiffel Tower Paris', 'Arc de Triomphe Paris', 'Champs-Élysées Paris', 'Montmartre Paris'],
+            food: ['restaurants Paris', 'Le Marais Paris food', 'Latin Quarter Paris restaurants', 'best bistros Paris'],
+            shopping: ['Champs-Élysées Paris shops', 'Le Marais Paris markets', 'Galeries Lafayette Paris', 'Rue Saint-Honoré Paris']
+        },
+        newyork: {
+            culture: ['Metropolitan Museum New York', 'MoMA New York', 'Guggenheim Museum New York'],
+            tourist: ['Statue of Liberty New York', 'Central Park New York', 'Times Square New York', 'Brooklyn Bridge New York'],
+            food: ['restaurants New York', 'Little Italy New York', 'Chinatown New York', 'best pizza New York'],
+            shopping: ['Fifth Avenue New York', 'SoHo New York', 'Chelsea Market New York', 'Union Square Market New York']
+        },
+        london: {
+            culture: ['British Museum London', 'Tate Modern London', 'National Gallery London', 'Westminster Abbey London'],
+            tourist: ['Big Ben London', 'Tower Bridge London', 'London Eye', 'Buckingham Palace London'],
+            food: ['restaurants London', 'Borough Market London', 'Camden Market London food', 'Covent Garden London'],
+            shopping: ['Oxford Street London', 'Camden Market London shops', 'Portobello Road London', 'Covent Garden Market London']
+        },
+        istanbul: {
+            culture: ['Hagia Sophia Istanbul', 'Blue Mosque Istanbul', 'Topkapi Palace Istanbul'],
+            tourist: ['Galata Tower Istanbul', 'Bosphorus Bridge Istanbul', 'Taksim Square Istanbul'],
+            food: ['restaurants Istanbul', 'Grand Bazaar Istanbul food', 'Eminönü Istanbul restaurants', 'local food Istanbul'],
+            shopping: ['Grand Bazaar Istanbul', 'Istinye Park Istanbul', 'Spice Bazaar Istanbul', 'Nişantaşı Istanbul']
+        },
+        barcelona: {
+            culture: ['Sagrada Familia Barcelona', 'Park Güell Barcelona', 'Picasso Museum Barcelona'],
+            tourist: ['Casa Batlló Barcelona', 'Gothic Quarter Barcelona', 'La Rambla Barcelona'],
+            food: ['restaurants Barcelona', 'Boquería Market Barcelona', 'Gothic Quarter Barcelona food', 'local tapas Barcelona'],
+            shopping: ['Passeig de Gràcia Barcelona', 'Gothic Quarter Barcelona shops', 'El Born Barcelona markets']
         }
-        
-        // Add fallback generic searches if no city-specific data
-        if (queries.length === 0) {
-            switch (category) {
-                case 'culture':
-                    queries.push(`museums ${city}`, `temples ${city}`, `heritage sites ${city}`, `art galleries ${city}`);
-                    break;
-                case 'food':
-                    queries.push(`restaurants ${city}`, `food markets ${city}`, `local cuisine ${city}`, `street food ${city}`);
-                    break;
-                case 'shopping':
-                    queries.push(`shopping centers ${city}`, `markets ${city}`, `shopping districts ${city}`, `malls ${city}`);
-                    break;
-                case 'tourist':
-                case 'places':
-                default:
-                    queries.push(`tourist attractions ${city}`, `landmarks ${city}`, `monuments ${city}`, `famous places ${city}`);
-                    break;
-            }
-        }
-        
-        // Add some generic backup queries
-        queries.push(`${category} in ${city}`, `top ${category} ${city}`);
-        
-        return queries.slice(0, 5); // Limit to 5 queries for better coverage
+    };
+
+    const cityQueries = cityData[city];
+
+    if (cityQueries && cityQueries[category]) {
+        queries.push(...cityQueries[category].slice(0, 5));
     }
+
+    if (queries.length === 0) {
+        switch (category) {
+            case 'culture':
+                queries.push(`museums ${city}`, `temples ${city}`, `heritage sites ${city}`, `art galleries ${city}`);
+                break;
+            case 'food':
+                queries.push(`restaurants ${city}`, `food markets ${city}`, `local cuisine ${city}`, `best places to eat ${city}`);
+                break;
+            case 'shopping':
+                queries.push(`famous markets ${city}`, `shopping districts ${city}`, `local bazaars ${city}`, `markets ${city}`);
+                break;
+            case 'places':
+            case 'tourist':
+                queries.push(`tourist attractions ${city}`, `landmarks ${city}`, `monuments ${city}`, `famous places ${city}`);
+                break;
+            default:
+                queries.push(`${category} in ${city}`, `top ${category} ${city}`);
+        }
+    }
+
+    queries.push(`${category} in ${city}`, `top ${category} ${city}`);
+
+    return queries.slice(0, 5);
+}
     
     // Extract a clean location name from the API response
     static extractLocationName(place) {
