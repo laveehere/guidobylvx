@@ -667,80 +667,139 @@ class TraditionalClothingAPI {
     
     // Comprehensive traditional clothing database
     static clothingDatabase = {
-        tokyo: {
-            traditional: [
-                {
-                    name: "Kimono",
-                    type: "formal_wear",
-                    description: "Traditional Japanese robe with wide sleeves and a broad sash (obi)",
-                    occasions: ["tea ceremonies", "festivals", "weddings", "formal events"],
-                    colors: ["deep blue", "cherry blossom pink", "gold", "burgundy"],
-                    price_range: "¥15,000 - ¥500,000",
-                    rental_available: true,
-                    seasonal: "all seasons (different fabrics)",
-                    cultural_significance: "Symbol of Japanese culture and tradition",
-                    where_to_buy: ["Asakusa", "Ginza", "Kyoto (day trip)"],
-                    styling_tips: "Wear with proper undergarments (juban), choose colors based on season",
-                    accessories: ["obi (sash)", "geta (wooden sandals)", "hair ornaments"]
-                },
-                {
-                    name: "Yukata",
-                    type: "casual_wear",
-                    description: "Lightweight cotton kimono, perfect for summer festivals",
-                    occasions: ["summer festivals", "fireworks displays", "hot springs"],
-                    colors: ["indigo blue", "white", "floral patterns"],
-                    price_range: "¥3,000 - ¥20,000",
-                    rental_available: true,
-                    seasonal: "summer",
-                    cultural_significance: "Casual traditional wear for summer events",
-                    where_to_buy: ["Shibuya", "Harajuku", "department stores"],
-                    styling_tips: "Wear with simple obi, perfect for beginners",
-                    accessories: ["simple obi", "sandals", "hand fan"]
-                }
-            ],
-            shopping_areas: [
-                {
-                    area: "Asakusa",
-                    specialty: "Traditional authentic kimono",
-                    price_level: "high to premium",
-                    best_for: "authentic experience"
-                }
-            ]
+    tokyo: [
+        {
+            name: "Kimono",
+            type: "formal_wear",
+            description: "Traditional Japanese robe with wide sleeves and a broad sash (obi)",
+            occasions: ["tea ceremonies", "festivals", "weddings", "formal events"],
+            colors: ["deep blue", "cherry blossom pink", "gold", "burgundy"],
+            price_range: "¥15,000 - ¥500,000",
+            rental_available: true,
+            cultural_significance: "Symbol of Japanese culture and tradition",
+            where_to_buy: ["Asakusa", "Ginza", "Kyoto (day trip)"],
+            styling_tips: "Wear with proper undergarments (juban), choose colors based on season",
+            accessories: ["obi (sash)", "geta (wooden sandals)", "hair ornaments"]
         },
-        mumbai: {
-            traditional: [
-                {
-                    name: "Saree",
-                    type: "formal_wear",
-                    description: "Elegant draped garment, symbol of Indian femininity",
-                    occasions: ["weddings", "festivals", "formal events", "office wear"],
-                    colors: ["vibrant reds", "golden yellow", "royal blue", "emerald green"],
-                    price_range: "₹500 - ₹50,000+",
-                    rental_available: true,
-                    cultural_significance: "Represents Indian tradition and elegance",
-                    where_to_buy: ["Linking Road", "Colaba Causeway", "Crawford Market"],
-                    styling_tips: "Choose blouse design carefully, draping style varies by region",
-                    accessories: ["jewelry", "bangles", "bindi", "traditional footwear"]
-                }
-            ]
-        },
-        paris: {
-            traditional: [
-                {
-                    name: "French Provincial Dress",
-                    type: "regional_wear",
-                    description: "Traditional French regional costume with embroidered details",
-                    occasions: ["folk festivals", "cultural events", "themed parties"],
-                    colors: ["white with colorful embroidery", "blue", "red"],
-                    price_range: "€50 - €300",
-                    rental_available: true,
-                    cultural_significance: "Represents French regional heritage",
-                    where_to_buy: ["Le Marais", "antique shops", "costume stores"]
-                }
-            ]
+        {
+            name: "Yukata",
+            type: "casual_wear",
+            description: "Lightweight cotton kimono, perfect for summer festivals",
+            occasions: ["summer festivals", "fireworks displays", "hot springs"],
+            colors: ["indigo blue", "white", "floral patterns"],
+            price_range: "¥3,000 - ¥20,000",
+            rental_available: true,
+            cultural_significance: "Casual traditional wear for summer events",
+            where_to_buy: ["Shibuya", "Harajuku", "department stores"],
+            styling_tips: "Wear with simple obi, perfect for beginners",
+            accessories: ["simple obi", "sandals", "hand fan"]
         }
-    };
-    
+    ],
+    mumbai: [
+        {
+            name: "Saree",
+            type: "formal_wear",
+            description: "Elegant draped garment, symbol of Indian femininity",
+            occasions: ["weddings", "festivals", "formal events", "office wear"],
+            colors: ["vibrant reds", "golden yellow", "royal blue", "emerald green"],
+            price_range: "₹500 - ₹50,000+",
+            rental_available: true,
+            cultural_significance: "Represents Indian tradition and elegance",
+            where_to_buy: ["Linking Road", "Colaba Causeway", "Crawford Market"],
+            styling_tips: "Choose blouse design carefully, draping style varies by region",
+            accessories: ["jewelry", "bangles", "bindi", "traditional footwear"]
+        }
+    ],
+    paris: [
+        {
+            name: "French Provincial Dress",
+            type: "regional_wear",
+            description: "Traditional French regional costume with embroidered details",
+            occasions: ["folk festivals", "cultural events", "themed parties"],
+            colors: ["white with colorful embroidery", "blue", "red"],
+            price_range: "€50 - €300",
+            rental_available: true,
+            cultural_significance: "Represents French regional heritage",
+            where_to_buy: ["Le Marais", "antique shops", "costume stores"]
+        }
+    ],
+    istanbul: [
+        {
+            name: "Şalvar",
+            type: "traditional_wear",
+            description: "Baggy trousers worn traditionally by both men and women",
+            occasions: ["daily wear", "cultural festivals"],
+            colors: ["white", "earth tones", "bright patterns"],
+            price_range: "₺100 - ₺1,000",
+            rental_available: false,
+            cultural_significance: "Part of traditional Ottoman attire",
+            where_to_buy: ["Grand Bazaar", "Kadıköy Market"],
+            styling_tips: "Pair with embroidered shirts or vests",
+            accessories: ["fez hats", "handcrafted belts"]
+        }
+    ],
+    new_york: [
+        {
+            name: "Modern Urbanwear",
+            type: "casual_wear",
+            description: "Fashion-forward clothing inspired by the city’s diversity",
+            occasions: ["daily wear", "parties"],
+            colors: ["black", "white", "bold colors"],
+            price_range: "$50 - $1,000+",
+            rental_available: true,
+            cultural_significance: "Representation of New York’s dynamic fashion scene",
+            where_to_buy: ["SoHo", "Brooklyn boutiques"],
+            styling_tips: "Mix vintage and contemporary pieces",
+            accessories: ["caps", "sneakers", "statement jewelry"]
+        }
+    ],
+    london: [
+        {
+            name: "Savile Row Suit",
+            type: "formal_wear",
+            description: "Tailor-made bespoke suits famous worldwide",
+            occasions: ["business", "formal events"],
+            colors: ["navy", "gray", "black"],
+            price_range: "£500 - £5,000+",
+            rental_available: false,
+            cultural_significance: "Iconic British tailoring tradition",
+            where_to_buy: ["Savile Row"],
+            styling_tips: "Complement with crisp shirts and classic ties",
+            accessories: ["cufflinks", "leather shoes"]
+        }
+    ],
+    delhi: [
+        {
+            name: "Kurta Pajama",
+            type: "formal_wear",
+            description: "Traditional men's outfit made of long shirt and pants",
+            occasions: ["festivals", "weddings", "formal occasions"],
+            colors: ["white", "cream", "bright colors"],
+            price_range: "₹800 - ₹10,000",
+            rental_available: true,
+            cultural_significance: "Essential traditional wear for Indian men",
+            where_to_buy: ["Chandni Chowk", "Janpath Market"],
+            styling_tips: "Choose embroidered fabrics for weddings",
+            accessories: ["mojari shoes", "shawls"]
+        }
+    ],
+    barcelona: [
+        {
+            name: "Catalan Traditional Dress",
+            type: "regional_wear",
+            description: "Colorful traditional costume with symbolic designs",
+            occasions: ["festivals", "cultural events"],
+            colors: ["red", "yellow", "black"],
+            price_range: "€30 - €200",
+            rental_available: true,
+            cultural_significance: "Represents Catalan identity",
+            where_to_buy: ["La Rambla", "local markets"],
+            styling_tips: "Wear with matching accessories like sashes",
+            accessories: ["berets", "woven belts"]
+        }
+    ]
+};
+
     // Get comprehensive traditional clothing information
     static async getTraditionalClothing(city, preferences = {}) {
         const cacheKey = `clothing_${city}_${JSON.stringify(preferences)}`;
@@ -1096,9 +1155,9 @@ async function handleWeatherQuery() {
 
 async function handleFoodQuery() {
     const places = await PlacesAPI.searchPlaces(currentCity, 'food');
-    
+
     addBotMessage(`Best food places and restaurants in ${currentCity}:`, '🍽️ Local Cuisine');
-    
+
     if (places.length > 0) {
         places.forEach(place => {
             const placeDiv = document.createElement('div');
@@ -1106,21 +1165,20 @@ async function handleFoodQuery() {
             placeDiv.innerHTML = `
                 <h4>${place.name}</h4>
                 <p><strong>📍 Address:</strong> ${place.address}</p>
-                <p><strong>🍽️ Type:</strong> ${place.type}</p>
+                <p><strong>🏷️ Type:</strong> ${place.type}</p>
                 <p><strong>⭐ Category:</strong> ${place.category || 'Restaurant/Food'}</p>
                 <p><strong>📊 Source:</strong> ${place.source}</p>
                 ${place.lat && place.lon ? `<p><strong>🗺️ Coordinates:</strong> ${place.lat}, ${place.lon}</p>` : ''}
             `;
             document.getElementById('messages').appendChild(placeDiv);
         });
-        
-        // Add food tip
+
         const tipDiv = document.createElement('div');
         tipDiv.className = 'api-powered';
-        tipDiv.innerHTML = `🍴 <strong>Food tip:</strong> Don't forget to try local specialties and street food for an authentic experience!`;
+        tipDiv.innerHTML = '🍴 <strong>Food tip:</strong> Try local specialties and street food for an authentic experience!';
         document.getElementById('messages').appendChild(tipDiv);
     } else {
-        addBotMessage('Unable to find specific restaurants via API. I recommend exploring local food markets, asking locals for recommendations, or checking food review apps!', '🤖 Food Suggestion');
+        addBotMessage('Could not find specific restaurants via API. Try exploring local food markets or asking locals!', '🤔 Food Suggestion');
     }
 }
 
@@ -1198,9 +1256,9 @@ async function handlePlacesQuery() {
 
 async function handleShoppingQuery() {
     const places = await PlacesAPI.searchPlaces(currentCity, 'shopping');
-    
-    addBotMessage(`Shopping areas and markets in ${currentCity}:`, '🛍️ Shopping');
-    
+
+    addBotMessage(`Famous markets and shopping areas in ${currentCity}:`, '🛍️ Shopping');
+
     if (places.length > 0) {
         places.forEach(place => {
             const placeDiv = document.createElement('div');
@@ -1208,7 +1266,7 @@ async function handleShoppingQuery() {
             placeDiv.innerHTML = `
                 <h4>${place.name}</h4>
                 <p><strong>📍 Address:</strong> ${place.address}</p>
-                <p><strong>🏪 Type:</strong> ${place.type}</p>
+                <p><strong>🏬 Type:</strong> ${place.type}</p>
                 <p><strong>⭐ Category:</strong> ${place.category || 'Shopping'}</p>
                 <p><strong>📊 Source:</strong> ${place.source}</p>
                 ${place.lat && place.lon ? `<p><strong>🗺️ Coordinates:</strong> ${place.lat}, ${place.lon}</p>` : ''}
@@ -1216,9 +1274,9 @@ async function handleShoppingQuery() {
             document.getElementById('messages').appendChild(placeDiv);
         });
     } else {
-        addBotMessage('Try exploring local markets and shopping districts! Check tourism websites for popular shopping areas.', '🤖 Suggestion');
+        addBotMessage('Try exploring local markets and shopping districts! Check tourism websites for popular shopping areas.', '🤔 Suggestion');
     }
-}
+}    
 
 async function handleGeneralQuery() {
     addBotMessage('I can help you with weather, food, culture, events, and places! What would you like to know?', '🤖 General Help');
@@ -1310,52 +1368,35 @@ function hideLoading() {
 
 // Enhanced clothing query handler
 async function handleEnhancedClothingQuery(userPreferences = {}) {
-    addBotMessage(`Let me find comprehensive traditional clothing information for ${currentCity}...`, '👘 Traditional Clothing Expert');
-    
+    addBotMessage(`Let me find comprehensive traditional clothing information for ${currentCity}...`, '🧥 Traditional Clothing Expert');
+
     try {
         const clothingData = await TraditionalClothingAPI.getTraditionalClothing(currentCity, userPreferences);
-        
-        // Display traditional clothing options
+
         if (clothingData.traditional.length > 0) {
             addBotMessage('Here are the traditional clothing options:', '✨ Traditional Wear');
-            
+
             clothingData.traditional.forEach(item => {
                 const clothingDiv = document.createElement('div');
                 clothingDiv.className = 'recommendation';
                 clothingDiv.innerHTML = `
                     <h4>${item.name} <span style="background: #e74c3c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">${item.type.toUpperCase()}</span></h4>
                     <p><strong>Description:</strong> ${item.description}</p>
-                    <p><strong>🎭 Best for:</strong> ${item.occasions.join(', ')}</p>
-                    <p><strong>🎨 Popular colors:</strong> ${item.colors ? item.colors.join(', ') : 'Various'}</p>
-                    <p><strong>💰 Price range:</strong> ${item.price_range}</p>
-                    ${item.rental_available ? '<p><strong>🏪 Rental available:</strong> Yes</p>' : ''}
-                    <p><strong>🛍️ Where to buy:</strong> ${item.where_to_buy.join(', ')}</p>
-                    ${item.styling_tips ? `<p><strong>💡 Styling tips:</strong> ${item.styling_tips}</p>` : ''}
-                    ${item.accessories ? `<p><strong>👜 Accessories:</strong> ${item.accessories.join(', ')}</p>` : ''}
-                    <p><small><strong>📚 Cultural significance:</strong> ${item.cultural_significance}</small></p>
+                    <p>🎭 <strong>Best for:</strong> ${item.occasions.join(', ')}</p>
+                    <p>🎨 <strong>Popular colors:</strong> ${item.colors ? item.colors.join(', ') : 'Various'}</p>
+                    <p>💰 <strong>Price range:</strong> ${item.price_range}</p>
+                    ${item.rental_available ? '<p>🏠 <strong>Rental available:</strong> Yes</p>' : ''}
+                    <p>🛒 <strong>Where to buy:</strong> ${item.where_to_buy.join(', ')}</p>
+                    ${item.styling_tips ? `<p>💡 <strong>Styling tips:</strong> ${item.styling_tips}</p>` : ''}
+                    ${item.accessories ? `<p>👗 <strong>Accessories:</strong> ${item.accessories.join(', ')}</p>` : ''}
+                    <p><small>📚 <strong>Cultural significance:</strong> ${item.cultural_significance}</small></p>
                 `;
                 document.getElementById('messages').appendChild(clothingDiv);
             });
+        } else {
+            addBotMessage('Sorry, no detailed traditional clothing data available for this city.', 'ℹ️ Info');
         }
-        
-        // Display shopping areas
-        if (clothingData.shopping_areas.length > 0) {
-            addBotMessage('Best shopping areas for traditional clothing:', '🛍️ Shopping Guide');
-            
-            clothingData.shopping_areas.forEach(area => {
-                const areaDiv = document.createElement('div');
-                areaDiv.className = 'recommendation';
-                areaDiv.innerHTML = `
-                    <h4>📍 ${area.area}</h4>
-                    <p><strong>Specialty:</strong> ${area.specialty}</p>
-                    <p><strong>Price level:</strong> ${area.price_level}</p>
-                    <p><strong>Best for:</strong> ${area.best_for}</p>
-                `;
-                document.getElementById('messages').appendChild(areaDiv);
-            });
-        }
-        
-        // Display cultural context
+
         const context = clothingData.cultural_context;
         if (context) {
             const contextDiv = document.createElement('div');
@@ -1370,15 +1411,14 @@ async function handleEnhancedClothingQuery(userPreferences = {}) {
             `;
             document.getElementById('messages').appendChild(contextDiv);
         }
-        
-        // Show rental options if available
+
         if (clothingData.rental_options.length > 0) {
-            addBotMessage(`💡 Pro tip: ${clothingData.rental_options.length} items available for rental - perfect for trying traditional wear without buying!`, '💰 Budget Tip');
+            addBotMessage(`⚡ Pro tip: ${clothingData.rental_options.length} items available for rental - perfect for trying traditional wear without buying!`, '💰 Budget Tip');
         }
-        
+
     } catch (error) {
         console.error('Error getting clothing information:', error);
-        addBotMessage('I found some basic traditional clothing information. For detailed guidance, I recommend visiting local cultural centers!', '👘 Basic Info');
+        addBotMessage('I found some basic traditional clothing information. For detailed guidance, I recommend visiting local cultural centers!', '🧥 Basic Info');
     }
 }
 
