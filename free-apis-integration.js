@@ -814,7 +814,8 @@ class TraditionalClothingAPI {
             return this.getGenericClothingInfo(city);
         }
         
-        let filteredClothing = cityData.traditional;
+        let filteredClothing = Array.isArray(cityData.traditional) ? cityData.traditional : [];
+
         
         if (preferences.occasion) {
             filteredClothing = filteredClothing.filter(item => 
