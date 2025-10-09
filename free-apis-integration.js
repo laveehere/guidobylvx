@@ -626,7 +626,7 @@ class AIAPI {
         }
         
         // Events-related queries
-        if (lower.includes('event') || lower.includes('festival') || lower.includes('concert') || lower.includes('show') ||
+        if (lower.includes('event') || lower.includes('festival') || lower.includes('concert') || lower.includes('performance') ||
             lower.includes('happening') || lower.includes('activities') || lower.includes('entertainment') || 
             lower.includes('nightlife') || lower.includes('what to do')) {
             return { intent: 'events', confidence: 0.9 };
@@ -802,27 +802,24 @@ class TraditionalClothingAPI {
 
     // Get comprehensive traditional clothing information
     static async getTraditionalClothing(city, preferences = {}) {
-        console.log('🧥 TraditionalClothing Debug - Searching for city:', city);
-        console.log('🧥 Available cities in database:', Object.keys(this.clothingDatabase));
         
         const cacheKey = `clothing_${city}_${JSON.stringify(preferences)}`;
         const cached = this.cache.get(cacheKey);
         
         if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-            console.log('🧥 Using cached data');
+
             return cached.data;
         }
         
         const cityData = this.clothingDatabase[city];
-        console.log('🧥 City data found:', !!cityData, 'Data length:', cityData ? cityData.length : 0);
         
         if (!cityData) {
-            console.log('🧥 No city data found, using generic info');
+
             return this.getGenericClothingInfo(city);
         }
         
         let filteredClothing = Array.isArray(cityData) ? cityData : [];
-        console.log('🧥 Filtered clothing length:', filteredClothing.length);
+
 
         
         if (preferences.occasion) {
@@ -841,8 +838,7 @@ class TraditionalClothingAPI {
             cultural_context: this.getCulturalContext(city)
         };
         
-        console.log('🧥 Final result - traditional length:', result.traditional.length);
-        console.log('🧥 Sample item:', result.traditional[0]);
+
         
         this.cache.set(cacheKey, {
             data: result,
@@ -1305,12 +1301,12 @@ function handleCategoryClick(category) {
     
     const categoryMessages = {
         food: 'Find the best restaurants and local food places',
-        places: 'Show me top tourist attractions and landmarks',
+        places: 'Find top tourist attractions and landmarks',
         weather: 'Get current weather conditions',
         events: 'What cultural events and activities are happening',
-        culture: 'Show museums temples and cultural sites',
+        culture: 'Find museums temples and cultural sites',
         shopping: 'Find the best shopping districts and markets',
-        clothing: 'Show traditional clothing and cultural wear options',
+        clothing: 'Find traditional clothing and cultural wear options',
         local: 'Give me comprehensive local recommendations and insider tips'
     };
     
@@ -1383,10 +1379,9 @@ async function handleEnhancedClothingQuery(userPreferences = {}) {
     addBotMessage(`Let me find comprehensive traditional clothing information for ${currentCity}...`, '🧥 Traditional Clothing Expert');
 
     try {
-        console.log('🧥 Handler Debug - Current city:', currentCity);
+
         const clothingData = await TraditionalClothingAPI.getTraditionalClothing(currentCity, userPreferences);
-        console.log('🧥 Handler Debug - Received data:', clothingData);
-        console.log('🧥 Handler Debug - Traditional array length:', clothingData.traditional ? clothingData.traditional.length : 'undefined');
+
 
         if (clothingData.traditional.length > 0) {
             addBotMessage('Here are the traditional clothing options:', '✨ Traditional Wear');
