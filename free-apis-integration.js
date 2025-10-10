@@ -918,6 +918,230 @@ class LocalRecommendationsAPI {
     static cache = new Map();
     static cacheTimeout = 30 * 60 * 1000; // 30 minutes
     
+    // Enhanced demo data structure for comprehensive local recommendations
+    static demoData = {
+        "tokyo": {
+            localFood: [
+                { name: "Sushi", description: "Vinegared rice with fresh seafood, Tokyo's iconic dish", where: "Ginza, Tsukiji Outer Market", price: "$$$", mustTry: true },
+                { name: "Ramen", description: "Rich noodle soup with various toppings", where: "Shibuya, Shinjuku districts", price: "$$", mustTry: true },
+                { name: "Tempura", description: "Lightly battered and fried seafood and vegetables", where: "Asakusa traditional restaurants", price: "$$$", mustTry: false },
+                { name: "Yakitori", description: "Grilled chicken skewers with tare sauce", where: "Yakitori alleys in Shinjuku", price: "$$", mustTry: false },
+                { name: "Takoyaki", description: "Octopus balls from Osaka, popular in Tokyo", where: "Street stalls, festival areas", price: "$", mustTry: false },
+                { name: "Mochi", description: "Sweet rice cake, especially good during New Year", where: "Traditional sweet shops", price: "$", mustTry: false }
+            ],
+            restaurants: [
+                { name: "Sukiyabashi Jiro", cuisine: "Sushi", area: "Ginza", specialty: "World-famous sushi omakase experience", price: "$$$$", reservation: "Required" },
+                { name: "Ichiran Ramen", cuisine: "Ramen", area: "Shibuya", specialty: "Individual booth ramen experience", price: "$$", reservation: "Not needed" },
+                { name: "Gonpachi", cuisine: "Japanese", area: "Shibuya", specialty: "Traditional atmosphere, inspired Kill Bill restaurant", price: "$$$", reservation: "Recommended" },
+                { name: "Nabezo", cuisine: "Hot Pot", area: "Multiple locations", specialty: "All-you-can-eat shabu-shabu and sukiyaki", price: "$$", reservation: "Not needed" },
+                { name: "Robot Restaurant", cuisine: "Entertainment", area: "Shinjuku", specialty: "Dinner show with robots and lasers", price: "$$$", reservation: "Required" }
+            ],
+            traditionalClothing: [
+                { type: "Kimono", description: "Traditional Japanese robe with elaborate patterns", occasions: "Festivals, tea ceremonies, formal events", where: "Asakusa rental shops, Ginza boutiques", price: "$$$" },
+                { type: "Yukata", description: "Summer cotton kimono, lighter and more casual", occasions: "Summer festivals, hot spring visits", where: "Department stores, tourist areas", price: "$$" },
+                { type: "Hakama", description: "Traditional pleated pants worn over kimono", occasions: "Formal ceremonies, martial arts, graduations", where: "Specialty shops in Asakusa", price: "$$$" },
+                { type: "Haori", description: "Short kimono jacket worn as outer layer", occasions: "Casual wear, modern fashion", where: "Vintage shops in Harajuku", price: "$$" }
+            ],
+            famousPlaces: [
+                { name: "Senso-ji Temple", type: "Religious Site", area: "Asakusa", highlights: "Tokyo's oldest temple (645 AD), traditional architecture", bestTime: "Early morning", entry: "Free" },
+                { name: "Tokyo Skytree", type: "Landmark", area: "Sumida", highlights: "Tallest structure in Japan (634m), panoramic city views", bestTime: "Sunset", entry: "$$" },
+                { name: "Imperial Palace", type: "Historical Site", area: "Chiyoda", highlights: "Emperor's residence, beautiful East Gardens", bestTime: "Spring (cherry blossoms)", entry: "Free (gardens)" },
+                { name: "Shibuya Crossing", type: "Cultural Icon", area: "Shibuya", highlights: "World's busiest pedestrian crossing, urban energy", bestTime: "Evening rush hour", entry: "Free" },
+                { name: "Meiji Shrine", type: "Religious Site", area: "Shibuya", highlights: "Dedicated to Emperor Meiji, peaceful forest in city", bestTime: "Early morning", entry: "Free" },
+                { name: "Tsukiji Outer Market", type: "Food Market", area: "Chuo", highlights: "Fresh seafood, street food, culinary adventure", bestTime: "Early morning", entry: "Free" }
+            ],
+            culturalEvents: [
+                { name: "Cherry Blossom Festival (Sakura)", period: "March-May", description: "Hanami picnics under blooming cherry trees, Japan's most celebrated season", locations: "Ueno Park, Shinjuku Gyoen, Chidorigafuchi", significance: "Symbol of life's beauty and fragility" },
+                { name: "Kanda Matsuri", period: "Mid-May (odd years)", description: "One of Tokyo's three great festivals with portable shrines", locations: "Kanda Shrine area", significance: "Pray for good harvest and prosperity" },
+                { name: "Bon Odori", period: "July-August", description: "Traditional summer dance festivals to honor ancestors", locations: "Various temples and parks citywide", significance: "Welcome spirits of ancestors" },
+                { name: "Autumn Leaves Festival", period: "November-December", description: "Koyo (autumn leaf viewing) in temples and parks", locations: "Nikko, Mount Fuji area, city parks", significance: "Appreciation of nature's cycles" }
+            ],
+            shoppingMarkets: [
+                { name: "Tsukiji Outer Market", type: "Food Market", area: "Chuo", specialties: "Fresh seafood, sushi, Japanese knives, kitchen tools", hours: "5:00 AM - 2:00 PM", bargaining: "Limited" },
+                { name: "Shibuya Center Gai", type: "Shopping District", area: "Shibuya", specialties: "Youth fashion, electronics, pop culture items", hours: "10:00 AM - 10:00 PM", bargaining: "No" },
+                { name: "Ginza", type: "Luxury District", area: "Chuo", specialties: "High-end brands, department stores, luxury goods", hours: "10:00 AM - 8:00 PM", bargaining: "No" },
+                { name: "Harajuku Takeshita Street", type: "Fashion Street", area: "Shibuya", specialties: "Unique fashion, pop culture items, street food", hours: "10:00 AM - 8:00 PM", bargaining: "Limited" },
+                { name: "Ameyoko Market", type: "Street Market", area: "Ueno", specialties: "Vintage items, snacks, bargain shopping", hours: "10:00 AM - 7:00 PM", bargaining: "Yes" }
+            ]
+        },
+        "mumbai": {
+            localFood: [
+                { name: "Vada Pav", description: "Mumbai's iconic street burger with spiced potato fritter", where: "Street vendors citywide, Ashok Vada Pav", price: "$", mustTry: true },
+                { name: "Pav Bhaji", description: "Spicy mixed vegetable curry served with buttered bread", where: "Juhu Beach, Mohammed Ali Road", price: "$", mustTry: true },
+                { name: "Dosa", description: "South Indian crepe with coconut chutney and sambar", where: "Matunga area, South Indian restaurants", price: "$", mustTry: false },
+                { name: "Bhel Puri", description: "Crunchy mix of puffed rice, sev, and chutneys", where: "Chowpatty Beach, street vendors", price: "$", mustTry: true },
+                { name: "Biryani", description: "Aromatic basmati rice with spiced meat or vegetables", where: "Mohammed Ali Road, Lucky Restaurant", price: "$$", mustTry: false },
+                { name: "Mumbai Sandwich", description: "Multi-layered vegetable sandwich with green chutney", where: "Street vendors, especially Oval Maidan", price: "$", mustTry: false }
+            ],
+            restaurants: [
+                { name: "Leopold Cafe", cuisine: "Continental", area: "Colaba", specialty: "Historic cafe featured in Shantaram, European cuisine", price: "$$", reservation: "Not needed" },
+                { name: "Trishna", cuisine: "Seafood", area: "Fort", specialty: "Modern Indian coastal cuisine with innovative presentations", price: "$$$", reservation: "Required" },
+                { name: "Britannia & Co", cuisine: "Parsi", area: "Ballard Estate", specialty: "Traditional Parsi dishes, berry pulao", price: "$$", reservation: "Not needed" },
+                { name: "Khyber", cuisine: "North Indian", area: "Fort", specialty: "Mughlai cuisine in elegant cave-like ambiance", price: "$$$", reservation: "Recommended" },
+                { name: "Cafe Mondegar", cuisine: "Continental", area: "Colaba", specialty: "Retro cafe with comic book murals", price: "$$", reservation: "Not needed" }
+            ],
+            traditionalClothing: [
+                { type: "Saree", description: "Six-yard traditional draped garment in silk or cotton", occasions: "Weddings, festivals, formal events", where: "Linking Road, Crawford Market, Zaveri Bazaar", price: "$$-$$$" },
+                { type: "Kurta", description: "Traditional tunic worn with pants or jeans", occasions: "Daily wear, festivals, casual events", where: "Colaba Causeway, local markets", price: "$-$$" },
+                { type: "Lehenga", description: "Embroidered skirt with blouse and dupatta", occasions: "Weddings, major celebrations", where: "Designer stores in Bandra, Zaveri Bazaar", price: "$$$" },
+                { type: "Dhoti", description: "Traditional men's unstitched garment", occasions: "Religious ceremonies, cultural events", where: "Crawford Market, traditional stores", price: "$" }
+            ],
+            famousPlaces: [
+                { name: "Gateway of India", type: "Historical Monument", area: "Apollo Bunder", highlights: "Iconic arch overlooking Arabian Sea, British colonial architecture", bestTime: "Evening", entry: "Free" },
+                { name: "Marine Drive", type: "Promenade", area: "South Mumbai", highlights: "Queen's Necklace waterfront, Art Deco buildings", bestTime: "Sunset", entry: "Free" },
+                { name: "Elephanta Caves", type: "UNESCO Site", area: "Elephanta Island", highlights: "Ancient rock-cut temples with Lord Shiva sculptures", bestTime: "Morning", entry: "$ (plus ferry)" },
+                { name: "Chhatrapati Shivaji Terminus", type: "Railway Station", area: "Fort", highlights: "UNESCO World Heritage Victorian Gothic architecture", bestTime: "Daytime", entry: "Free (exterior)" },
+                { name: "Juhu Beach", type: "Beach", area: "Juhu", highlights: "Popular beach with street food and Bollywood celebrity homes", bestTime: "Evening", entry: "Free" },
+                { name: "Haji Ali Dargah", type: "Religious Site", area: "Mahalaxmi", highlights: "Islamic shrine on a tidal island", bestTime: "Low tide", entry: "Free" }
+            ],
+            culturalEvents: [
+                { name: "Ganesh Chaturthi", period: "August-September", description: "11-day festival celebrating Lord Ganesha with elaborate decorations", locations: "Lalbaugcha Raja, Ganeshgalli, citywide", significance: "Removal of obstacles, new beginnings" },
+                { name: "Diwali", period: "October-November", description: "Festival of Lights with fireworks, sweets, and family gatherings", locations: "Citywide, especially residential areas", significance: "Victory of light over darkness" },
+                { name: "Mumbai Festival", period: "January", description: "Cultural celebrations showcasing city's diversity", locations: "Various venues across Mumbai", significance: "Celebration of Mumbai's cosmopolitan culture" },
+                { name: "Navratri", period: "September-October", description: "Nine nights of Gujarati folk dance and music", locations: "Garba venues, cultural centers", significance: "Worship of Divine Feminine" }
+            ],
+            shoppingMarkets: [
+                { name: "Crawford Market", type: "Traditional Market", area: "Fort", specialties: "Fresh fruits, spices, textiles, household items", hours: "11:00 AM - 8:00 PM", bargaining: "Yes" },
+                { name: "Linking Road", type: "Shopping Street", area: "Bandra", specialties: "Fashion, jewelry, shoes, street shopping", hours: "10:00 AM - 10:00 PM", bargaining: "Yes" },
+                { name: "Colaba Causeway", type: "Tourist Market", area: "Colaba", specialties: "Handicrafts, antiques, souvenirs, ethnic wear", hours: "10:00 AM - 10:00 PM", bargaining: "Yes" },
+                { name: "Fashion Street", type: "Garment Market", area: "Fort", specialties: "Affordable clothing, accessories, bags", hours: "11:00 AM - 8:00 PM", bargaining: "Yes" },
+                { name: "Zaveri Bazaar", type: "Jewelry Market", area: "Fort", specialties: "Gold, silver, precious stones, wedding jewelry", hours: "11:00 AM - 8:00 PM", bargaining: "Limited" }
+            ]
+        },
+        "delhi": {
+            localFood: [
+                { name: "Paranthas", description: "Stuffed Indian flatbread with various fillings", where: "Paranthe Wali Gali, Chandni Chowk", price: "$", mustTry: true },
+                { name: "Chole Bhature", description: "Spiced chickpeas with large fried bread", where: "Old Delhi dhabas, Sitaram Diwan Chand", price: "$", mustTry: true },
+                { name: "Butter Chicken", description: "Creamy tomato-based chicken curry, Delhi's gift to world", where: "Moti Mahal, Karim's", price: "$$", mustTry: true },
+                { name: "Golgappa", description: "Crispy hollow shells filled with spiced water", where: "Street vendors near India Gate, Connaught Place", price: "$", mustTry: true },
+                { name: "Kebabs", description: "Grilled meat skewers with aromatic spices", where: "Chandni Chowk, Khan Market", price: "$$", mustTry: false },
+                { name: "Kulfi", description: "Traditional Indian ice cream with cardamom", where: "Kuremal Mohan Lal Kulfi Wale", price: "$", mustTry: false }
+            ],
+            restaurants: [
+                { name: "Karim's", cuisine: "Mughlai", area: "Old Delhi", specialty: "Historic restaurant since 1913, mutton korma", price: "$$", reservation: "Not needed" },
+                { name: "Indian Accent", cuisine: "Modern Indian", area: "New Delhi", specialty: "Contemporary interpretation of Indian classics", price: "$$$$", reservation: "Required" },
+                { name: "Bukhara", cuisine: "North Indian", area: "Diplomatic Enclave", specialty: "Dal Bukhara, tandoor specialties, no cutlery dining", price: "$$$$", reservation: "Required" },
+                { name: "Pandara Road", cuisine: "Multi-cuisine", area: "India Gate", specialty: "Row of restaurants offering diverse North Indian cuisine", price: "$$$", reservation: "Recommended" },
+                { name: "Paranthe Wali Gali", cuisine: "Street Food", area: "Chandni Chowk", specialty: "Variety of stuffed paranthas in historic lane", price: "$", reservation: "Not needed" }
+            ],
+            traditionalClothing: [
+                { type: "Salwar Kameez", description: "Traditional three-piece outfit with tunic, pants, and scarf", occasions: "Daily wear, festivals, office wear", where: "Karol Bagh, Connaught Place", price: "$-$$" },
+                { type: "Sherwani", description: "Formal men's wear with intricate embroidery", occasions: "Weddings, formal events", where: "Chandni Chowk, Khan Market", price: "$$$" },
+                { type: "Ghagra Choli", description: "Traditional skirt and blouse ensemble", occasions: "Festivals, cultural events, weddings", where: "Rajouri Garden, Lajpat Nagar", price: "$$-$$$" },
+                { type: "Nehru Jacket", description: "Sleeveless jacket named after India's first PM", occasions: "Formal events, cultural programs", where: "Connaught Place, Janpath", price: "$$" }
+            ],
+            famousPlaces: [
+                { name: "Red Fort", type: "Historical Monument", area: "Old Delhi", highlights: "Mughal fortress, UNESCO World Heritage, Independence Day venue", bestTime: "Morning", entry: "$" },
+                { name: "India Gate", type: "War Memorial", area: "Rajpath", highlights: "42m high memorial arch, evening gathering spot", bestTime: "Evening", entry: "Free" },
+                { name: "Qutub Minar", type: "UNESCO Site", area: "Mehrauli", highlights: "73m tall victory tower, Indo-Islamic architecture", bestTime: "Morning", entry: "$" },
+                { name: "Lotus Temple", type: "Religious Site", area: "South Delhi", highlights: "Bahá'í House of Worship, lotus-shaped architecture", bestTime: "Sunset", entry: "Free" },
+                { name: "Humayun's Tomb", type: "Mausoleum", area: "Delhi", highlights: "Inspiration for Taj Mahal, Mughal garden tomb", bestTime: "Afternoon", entry: "$" },
+                { name: "Jama Masjid", type: "Religious Site", area: "Old Delhi", highlights: "India's largest mosque, Mughal architecture", bestTime: "Non-prayer times", entry: "Free" }
+            ],
+            culturalEvents: [
+                { name: "Diwali", period: "October-November", description: "Festival of Lights with spectacular celebrations across the capital", locations: "India Gate, Chandni Chowk, residential areas citywide", significance: "Victory of good over evil, light over darkness" },
+                { name: "Holi", period: "March", description: "Festival of Colors celebrating spring's arrival", locations: "Vrindavan (nearby), city parks, residential areas", significance: "Triumph of good, end of winter" },
+                { name: "Dussehra", period: "September-October", description: "10-day festival with Ramlila performances and Ravana effigies", locations: "Red Fort grounds, Ramlila grounds", significance: "Victory of Lord Rama over demon king Ravana" },
+                { name: "Delhi International Arts Festival", period: "November", description: "Cultural performances, art exhibitions, international participation", locations: "Various cultural venues like NCPA, Siri Fort", significance: "Celebration of global arts and culture" }
+            ],
+            shoppingMarkets: [
+                { name: "Chandni Chowk", type: "Historical Market", area: "Old Delhi", specialties: "Traditional items, street food, textiles, spices", hours: "10:00 AM - 8:00 PM", bargaining: "Yes" },
+                { name: "Connaught Place", type: "Commercial Hub", area: "Central Delhi", specialties: "Books, branded clothes, restaurants", hours: "10:00 AM - 8:00 PM", bargaining: "Limited" },
+                { name: "Khan Market", type: "Upmarket Shopping", area: "South Delhi", specialties: "Books, boutiques, cafes, branded goods", hours: "10:00 AM - 8:00 PM", bargaining: "No" },
+                { name: "Karol Bagh", type: "Shopping District", area: "Central Delhi", specialties: "Wedding shopping, electronics, textiles", hours: "10:00 AM - 9:00 PM", bargaining: "Yes" },
+                { name: "Lajpat Nagar", type: "Local Market", area: "South Delhi", specialties: "Clothing, footwear, accessories, affordable shopping", hours: "10:00 AM - 8:00 PM", bargaining: "Yes" }
+            ]
+        },
+        "paris": {
+            localFood: [
+                { name: "Croissant", description: "Buttery, flaky pastry perfect for breakfast", where: "Local boulangeries, morning cafes", price: "$", mustTry: true },
+                { name: "Escargot", description: "Cooked snails in garlic butter and herbs", where: "Traditional bistros, L'Ami Jean", price: "$$$", mustTry: false },
+                { name: "Coq au Vin", description: "Chicken braised in wine with mushrooms", where: "Classic French brasseries", price: "$$$", mustTry: false },
+                { name: "Macarons", description: "Colorful almond cookies with various fillings", where: "Ladurée, Pierre Hermé", price: "$$", mustTry: true },
+                { name: "French Onion Soup", description: "Rich onion broth topped with cheese and bread", where: "Les Halles area bistros", price: "$$", mustTry: false },
+                { name: "Crêpes", description: "Thin pancakes with sweet or savory fillings", where: "Street vendors, Breizh Café", price: "$", mustTry: true }
+            ],
+            restaurants: [
+                { name: "Le Comptoir du Relais", cuisine: "French Bistro", area: "Saint-Germain", specialty: "Traditional bistro fare in authentic atmosphere", price: "$$$", reservation: "Required" },
+                { name: "L'As du Fallafel", cuisine: "Middle Eastern", area: "Le Marais", specialty: "Best falafel in Paris, Jewish quarter specialty", price: "$", reservation: "Not needed" },
+                { name: "Breizh Café", cuisine: "Crêperie", area: "Le Marais", specialty: "Modern Japanese-French fusion crêpes", price: "$$", reservation: "Recommended" },
+                { name: "Du Pain et des Idées", cuisine: "Bakery", area: "République", specialty: "Artisanal pastries and sourdough bread", price: "$", reservation: "Not needed" },
+                { name: "Le Grand Véfour", cuisine: "Fine Dining", area: "Palais Royal", specialty: "Michelin-starred restaurant with 200+ year history", price: "$$$$", reservation: "Required" }
+            ],
+            traditionalClothing: [
+                { type: "Breton Stripes", description: "Classic French striped sailor shirt", occasions: "Casual wear, iconic French style", where: "Galeries Lafayette, local boutiques", price: "$-$$" },
+                { type: "Beret", description: "Traditional French wool cap", occasions: "Fashion accessory, cultural events", where: "Montmartre souvenir shops", price: "$" },
+                { type: "French Scarf", description: "Silk square scarf worn around neck", occasions: "Fashion accessory for all occasions", where: "Hermès, department stores", price: "$$-$$$" },
+                { type: "Chanel Suit", description: "Iconic tweed suit design", occasions: "Formal events, high fashion", where: "Chanel boutiques, luxury stores", price: "$$$$" }
+            ],
+            famousPlaces: [
+                { name: "Eiffel Tower", type: "Landmark", area: "Champ de Mars", highlights: "Iron lattice tower, symbol of Paris, evening light show", bestTime: "Sunset", entry: "$$" },
+                { name: "Louvre Museum", type: "Art Museum", area: "Rivoli", highlights: "World's largest art museum, Mona Lisa, glass pyramid", bestTime: "Early morning", entry: "$$$" },
+                { name: "Notre-Dame Cathedral", type: "Religious Site", area: "Île de la Cité", highlights: "Gothic architecture, historical significance (under restoration)", bestTime: "Midday", entry: "Free (exterior)" },
+                { name: "Arc de Triomphe", type: "Monument", area: "Champs-Élysées", highlights: "Triumphal arch, Tomb of Unknown Soldier, city views", bestTime: "Afternoon", entry: "$$" },
+                { name: "Sacré-Cœur Basilica", type: "Religious Site", area: "Montmartre", highlights: "Romano-Byzantine architecture, panoramic Paris views", bestTime: "Sunset", entry: "Free" },
+                { name: "Seine River Cruise", type: "Activity", area: "Citywide", highlights: "See Paris from water, illuminated monuments", bestTime: "Evening", entry: "$$" }
+            ],
+            culturalEvents: [
+                { name: "Bastille Day", period: "July 14", description: "French National Day with military parade and fireworks", locations: "Champs-Élysées parade, Eiffel Tower fireworks", significance: "French Revolution commemoration" },
+                { name: "Nuit Blanche", period: "First Saturday of October", description: "All-night contemporary arts festival", locations: "Museums, galleries, public spaces citywide", significance: "Celebration of contemporary art and culture" },
+                { name: "Paris Fashion Week", period: "September & March", description: "International fashion shows and presentations", locations: "Grand Palais, various venues", significance: "Global fashion industry showcase" },
+                { name: "Fête de la Musique", period: "June 21", description: "Free music performances throughout the city", locations: "Streets, parks, venues citywide", significance: "Summer solstice celebration through music" }
+            ],
+            shoppingMarkets: [
+                { name: "Marché aux Puces", type: "Flea Market", area: "Saint-Ouen", specialties: "Antiques, vintage items, collectibles", hours: "Saturday-Monday 9:00 AM - 6:00 PM", bargaining: "Yes" },
+                { name: "Champs-Élysées", type: "Shopping Avenue", area: "8th Arrondissement", specialties: "Luxury brands, flagship stores, cafes", hours: "10:00 AM - 8:00 PM", bargaining: "No" },
+                { name: "Le Marais", type: "Historic District", area: "3rd-4th Arrondissement", specialties: "Vintage shops, Jewish quarter specialties, trendy boutiques", hours: "10:00 AM - 7:00 PM", bargaining: "Limited" },
+                { name: "Rue de Rivoli", type: "Shopping Street", area: "1st Arrondissement", specialties: "Souvenir shops, department stores, tourist items", hours: "10:00 AM - 7:00 PM", bargaining: "No" },
+                { name: "Galeries Lafayette", type: "Department Store", area: "9th Arrondissement", specialties: "Luxury fashion, gourmet food hall, French brands", hours: "9:30 AM - 8:00 PM", bargaining: "No" }
+            ]
+        },
+        "newyork": {
+            localFood: [
+                { name: "New York Pizza", description: "Large thin crust pizza sold by the slice", where: "Joe's Pizza, Di Fara, local pizzerias", price: "$", mustTry: true },
+                { name: "Bagels", description: "Chewy bread rings with cream cheese and lox", where: "Ess-a-Bagel, H&H Bagels, local delis", price: "$", mustTry: true },
+                { name: "Cheesecake", description: "Rich, creamy New York-style dessert", where: "Junior's, Eileen's Special Cheesecake", price: "$$", mustTry: false },
+                { name: "Pastrami Sandwich", description: "Hot corned beef sandwich on rye bread", where: "Katz's Delicatessen, Carnegie Deli", price: "$$", mustTry: true },
+                { name: "Hot Dog", description: "Street vendor classic with mustard and sauerkraut", where: "Central Park vendors, Times Square carts", price: "$", mustTry: false },
+                { name: "Black and White Cookie", description: "Large cookie with vanilla and chocolate icing", where: "Local bakeries, delis citywide", price: "$", mustTry: false }
+            ],
+            restaurants: [
+                { name: "Katz's Delicatessen", cuisine: "Jewish Deli", area: "Lower East Side", specialty: "Pastrami sandwich, historic deli since 1888", price: "$$", reservation: "Not needed" },
+                { name: "Peter Luger", cuisine: "Steakhouse", area: "Brooklyn", specialty: "Dry-aged steaks since 1887, cash only", price: "$$$$", reservation: "Required" },
+                { name: "Xi'an Famous Foods", cuisine: "Chinese", area: "Multiple locations", specialty: "Hand-pulled noodles, spicy Western Chinese cuisine", price: "$", reservation: "Not needed" },
+                { name: "Joe's Pizza", cuisine: "Pizza", area: "Multiple locations", specialty: "Classic New York slice, thin crust", price: "$", reservation: "Not needed" },
+                { name: "Eleven Madison Park", cuisine: "Fine Dining", area: "Flatiron", specialty: "Plant-based tasting menu, Michelin stars", price: "$$$$", reservation: "Required" }
+            ],
+            traditionalClothing: [
+                { type: "Yankees Cap", description: "Iconic baseball cap representing NYC", occasions: "Casual wear, sports events", where: "Yankee Stadium shop, sports stores", price: "$" },
+                { type: "I ❤️ NY T-shirt", description: "Classic tourist souvenir shirt", occasions: "Casual wear, tourist memento", where: "Times Square, souvenir shops", price: "$" },
+                { type: "Broadway Show Merch", description: "Theater-themed clothing and accessories", occasions: "Casual wear, show memorabilia", where: "Theater District shops", price: "$-$$" },
+                { type: "FDNY/NYPD Gear", description: "New York emergency services apparel", occasions: "Casual wear, city pride", where: "Official stores, souvenir shops", price: "$-$$" }
+            ],
+            famousPlaces: [
+                { name: "Statue of Liberty", type: "Monument", area: "Liberty Island", highlights: "Symbol of freedom, harbor views, crown access", bestTime: "Morning", entry: "$$ (includes ferry)" },
+                { name: "Central Park", type: "Urban Park", area: "Manhattan", highlights: "843-acre green oasis, recreational activities", bestTime: "Afternoon", entry: "Free" },
+                { name: "Times Square", type: "Entertainment District", area: "Midtown", highlights: "Bright LED billboards, Broadway theaters, energy", bestTime: "Evening", entry: "Free" },
+                { name: "Brooklyn Bridge", type: "Bridge", area: "Brooklyn/Manhattan", highlights: "Iconic suspension bridge, pedestrian walkway", bestTime: "Sunset", entry: "Free" },
+                { name: "9/11 Memorial", type: "Memorial", area: "Financial District", highlights: "Tribute to victims, reflecting pools, museum", bestTime: "Midday", entry: "Free (memorial), $ (museum)" },
+                { name: "Empire State Building", type: "Skyscraper", area: "Midtown", highlights: "Art Deco architecture, observation decks", bestTime: "Sunset", entry: "$$$" }
+            ],
+            culturalEvents: [
+                { name: "New Year's Eve Ball Drop", period: "December 31", description: "Iconic countdown celebration in Times Square", locations: "Times Square", significance: "Global New Year celebration" },
+                { name: "Macy's Thanksgiving Parade", period: "Thanksgiving Day", description: "Giant balloon parade with floats and performances", locations: "Central Park West to Herald Square", significance: "American Thanksgiving tradition" },
+                { name: "Summer in the City", period: "June-August", description: "Outdoor concerts, festivals, and cultural events", locations: "Central Park, Brooklyn Bridge Park, various venues", significance: "Celebration of NYC summer culture" },
+                { name: "Halloween Parade", period: "October 31", description: "World's largest Halloween celebration", locations: "Greenwich Village", significance: "Creative expression and community celebration" }
+            ],
+            shoppingMarkets: [
+                { name: "Times Square", type: "Tourist Shopping", area: "Midtown", specialties: "Souvenir shops, theater merchandise, chain stores", hours: "24/7", bargaining: "No" },
+                { name: "Fifth Avenue", type: "Luxury Shopping", area: "Midtown", specialties: "High-end brands, flagship stores, jewelry", hours: "10:00 AM - 8:00 PM", bargaining: "No" },
+                { name: "SoHo", type: "Fashion District", area: "Lower Manhattan", specialties: "Designer boutiques, art galleries, trendy fashion", hours: "11:00 AM - 7:00 PM", bargaining: "No" },
+                { name: "Chelsea Market", type: "Food Market", area: "Chelsea", specialties: "Gourmet food, artisanal products, restaurants", hours: "7:00 AM - 9:00 PM", bargaining: "No" },
+                { name: "Brooklyn Flea Market", type: "Vintage Market", area: "Brooklyn", specialties: "Vintage clothing, antiques, handmade crafts", hours: "Saturday-Sunday 10:00 AM - 5:00 PM", bargaining: "Yes" }
+            ]
+        }
+    };
+    
     static async getLocalRecommendations(city) {
         const cacheKey = `local_rec_${city}`;
         const cached = this.cache.get(cacheKey);
@@ -927,19 +1151,22 @@ class LocalRecommendationsAPI {
         }
         
         try {
-            // Get comprehensive recommendations using multiple APIs
-            const [weather, places, clothing, events] = await Promise.all([
-                WeatherAPI.getCurrentWeather(city),
-                PlacesAPI.searchPlaces(city, 'tourist'),
-                TraditionalClothingAPI.getTraditionalClothing(city),
-                NewsAPI.getLocalEvents(city)
-            ]);
+            // Get comprehensive recommendations using demo data and enhanced local information
+            const cityData = this.demoData[city.toLowerCase()];
+            
+            if (!cityData) {
+                return this.getBasicRecommendations(city);
+            }
             
             const recommendations = {
-                weather: weather,
-                places: places,
-                traditional_clothing: clothing,
-                events: events,
+                weather: await WeatherAPI.getCurrentWeather(city).catch(() => ({ temperature: 20, condition: 'pleasant' })),
+                local_food: cityData.localFood,
+                restaurants: cityData.restaurants,
+                traditional_clothing: cityData.traditionalClothing,
+                famous_places: cityData.famousPlaces,
+                cultural_events: cityData.culturalEvents,
+                shopping_markets: cityData.shoppingMarkets,
+                events: await NewsAPI.getLocalEvents(city).catch(() => []),
                 local_tips: this.getLocalTips(city),
                 budget_options: this.getBudgetRecommendations(city),
                 cultural_insights: this.getCulturalInsights(city)
@@ -957,60 +1184,165 @@ class LocalRecommendationsAPI {
         }
     }
     
+    static getLocalFood(city) {
+        const cityData = this.demoData[city.toLowerCase()];
+        return cityData ? cityData.localFood : [
+            { name: "Local Specialties", description: "Try traditional dishes", where: "Local restaurants and markets", price: "$$", mustTry: true }
+        ];
+    }
+    
+    static getTopRestaurants(city) {
+        const cityData = this.demoData[city.toLowerCase()];
+        return cityData ? cityData.restaurants : [
+            { name: "Local Restaurant", cuisine: "Regional", area: "City Center", specialty: "Local specialties", price: "$$", reservation: "Recommended" }
+        ];
+    }
+    
+    static getTraditionalClothing(city) {
+        const cityData = this.demoData[city.toLowerCase()];
+        return cityData ? cityData.traditionalClothing : [
+            { type: "Local Traditional Wear", description: "Regional clothing", occasions: "Cultural events", where: "Local markets", price: "$$" }
+        ];
+    }
+    
+    static getFamousPlaces(city) {
+        const cityData = this.demoData[city.toLowerCase()];
+        return cityData ? cityData.famousPlaces : [
+            { name: "City Center", type: "Urban Area", area: "Downtown", highlights: "Main attractions and landmarks", bestTime: "Daytime", entry: "Free" }
+        ];
+    }
+    
+    static getCulturalEvents(city) {
+        const cityData = this.demoData[city.toLowerCase()];
+        return cityData ? cityData.culturalEvents : [
+            { name: "Local Cultural Celebration", period: "Various times", description: "Regional festivals and events", locations: "City venues", significance: "Cultural heritage" }
+        ];
+    }
+    
+    static getShoppingMarkets(city) {
+        const cityData = this.demoData[city.toLowerCase()];
+        return cityData ? cityData.shoppingMarkets : [
+            { name: "Central Market", type: "Local Market", area: "City Center", specialties: "Local goods and crafts", hours: "9:00 AM - 6:00 PM", bargaining: "Yes" }
+        ];
+    }
+    
     static getLocalTips(city) {
         const tips = {
             tokyo: [
-                "Use IC cards for convenient public transport",
-                "Learn basic bowing etiquette",
-                "Try convenience store food - it's surprisingly good",
-                "Visit both traditional and modern districts"
+                "Use IC cards (Suica/Pasmo) for convenient public transport",
+                "Learn basic bowing etiquette - slight bow for greetings",
+                "Try convenience store food - surprisingly high quality",
+                "Visit both traditional districts (Asakusa) and modern areas (Shibuya)",
+                "Remove shoes when entering homes and some restaurants",
+                "Download Google Translate app for camera translation"
             ],
             mumbai: [
-                "Use local trains for efficient travel",
-                "Try street food at Mohammed Ali Road",
-                "Bargain at local markets",
-                "Respect local customs and dress modestly"
+                "Use local trains for efficient travel, but avoid rush hours",
+                "Try street food at Mohammed Ali Road and Juhu Beach",
+                "Bargain at local markets but be respectful",
+                "Respect local customs and dress modestly at religious sites",
+                "Monsoon season (June-September) brings heavy rains",
+                "Keep cash handy as many places don't accept cards"
+            ],
+            delhi: [
+                "Use Delhi Metro for convenient and safe travel",
+                "Bargain in local markets but not in malls or branded stores",
+                "Try street food but choose busy stalls for freshness",
+                "Dress modestly when visiting religious sites",
+                "Air quality can be poor, especially in winter months",
+                "Drink bottled water and avoid ice in street drinks"
             ],
             paris: [
-                "Learn basic French greetings",
-                "Visit local cafes for authentic experience",
-                "Use metro for easy transportation",
-                "Explore beyond tourist areas"
+                "Learn basic French greetings - 'Bonjour' and 'Merci'",
+                "Visit local cafes for authentic Parisian experience",
+                "Use metro for easy transportation across the city",
+                "Explore neighborhoods beyond major tourist areas",
+                "Most shops close on Sundays except in tourist areas",
+                "Tip 10% at restaurants if service charge not included"
+            ],
+            newyork: [
+                "Walk fast and stay right on sidewalks",
+                "Use subway MetroCard for efficient city travel",
+                "Tip 18-20% at restaurants and bars",
+                "Central Park is perfect for jogging and relaxing",
+                "Broadway shows require advance booking",
+                "Don't be afraid to ask locals for directions - most are helpful"
             ]
         };
         
-        return tips[city] || [
+        return tips[city.toLowerCase()] || [
             "Research local customs before visiting",
-            "Try local cuisine and markets",
-            "Use public transportation",
-            "Respect cultural norms"
+            "Try local cuisine and visit traditional markets",
+            "Use public transportation when available",
+            "Respect cultural norms and dress codes",
+            "Learn a few basic phrases in the local language",
+            "Keep important documents and emergency contacts handy"
         ];
     }
     
     static getBudgetRecommendations(city) {
-        return {
-            accommodation: "Consider local guesthouses and hostels",
-            food: "Try local street food and markets",
-            transport: "Use public transportation and walking",
-            activities: "Look for free cultural events and museums"
+        const budget = {
+            tokyo: {
+                accommodation: "Consider capsule hotels, business hotels, or Airbnb in outer districts",
+                food: "Convenience stores, ramen shops, standing sushi bars, lunch sets",
+                transport: "Day passes for JR/Metro, walking between nearby attractions",
+                activities: "Free temples, parks, observation decks in department stores"
+            },
+            mumbai: {
+                accommodation: "Budget hotels in Colaba, hostels, or guesthouses in Bandra",
+                food: "Street food, local dhabas, South Indian restaurants in Matunga",
+                transport: "Local trains (second class), buses, shared auto-rickshaws",
+                activities: "Free beaches, markets, Heritage walks, Elephanta Caves"
+            },
+            delhi: {
+                accommodation: "Budget hotels in Paharganj, hostels, or guesthouses in residential areas",
+                food: "Street food in Old Delhi, local dhabas, government canteens",
+                transport: "Delhi Metro day passes, buses, shared auto-rickshaws",
+                activities: "Free monuments, markets, cultural events, walking tours"
+            },
+            paris: {
+                accommodation: "Budget hotels in 18th-20th arrondissements, hostels, Airbnb",
+                food: "Local bistros, bakeries, markets, lunch menus, happy hour",
+                transport: "Metro day/week passes, Vélib bike sharing, walking",
+                activities: "Free museums (first Sunday), parks, churches, street art tours"
+            },
+            newyork: {
+                accommodation: "Hostels in Manhattan, budget hotels in outer boroughs, Airbnb",
+                food: "Food trucks, delis, happy hour specials, ethnic restaurants",
+                transport: "Weekly MetroCard, Citi Bike sharing, walking across bridges",
+                activities: "Free museums (suggested donation), Central Park, Brooklyn Bridge, Staten Island Ferry"
+            }
+        };
+        
+        return budget[city.toLowerCase()] || {
+            accommodation: "Consider local guesthouses, hostels, or budget hotels",
+            food: "Try local street food, markets, and family-run restaurants",
+            transport: "Use public transportation and walking when possible",
+            activities: "Look for free cultural events, museums, and public attractions"
         };
     }
     
     static getCulturalInsights(city) {
         const insights = {
-            tokyo: "Balance respect for tradition with openness to innovation",
-            mumbai: "Embrace the diversity and energy of the city",
-            paris: "Appreciate art, cuisine, and intellectual discourse"
+            tokyo: "Balance respect for tradition with openness to innovation. Bow when greeting, be punctual, and appreciate both ancient temples and cutting-edge technology. Silence is valued, especially on public transport.",
+            mumbai: "Embrace the diversity and energy of India's financial capital. The city never sleeps, and neither should your spirit of adventure. Respect for all religions and adaptability are key to enjoying Mumbai's vibrant culture.",
+            delhi: "Experience the perfect blend of ancient history and modern India. Respect religious sites, enjoy bargaining in markets, and savor the rich Mughal heritage alongside contemporary Indian culture.",
+            paris: "Appreciate art, cuisine, and intellectual discourse. Take time to enjoy cafe culture, dress elegantly, and embrace the French art de vivre (art of living). Quality over quantity is valued in all aspects of life.",
+            newyork: "Move fast, think big, and embrace diversity. This city rewards ambition and celebrates individual expression while fostering community spirit. Be direct in communication and open to new experiences."
         };
         
-        return insights[city] || "Research local cultural values and customs";
+        return insights[city.toLowerCase()] || "Research local cultural values and customs to enhance your travel experience. Be respectful, open-minded, and ready to learn from local traditions.";
     }
     
     static getBasicRecommendations(city) {
         return {
             weather: { temperature: 20, condition: 'pleasant' },
-            places: [],
-            traditional_clothing: { traditional: [] },
+            local_food: this.getLocalFood(city),
+            restaurants: this.getTopRestaurants(city),
+            traditional_clothing: this.getTraditionalClothing(city),
+            famous_places: this.getFamousPlaces(city),
+            cultural_events: this.getCulturalEvents(city),
+            shopping_markets: this.getShoppingMarkets(city),
             events: [],
             local_tips: this.getLocalTips(city),
             budget_options: this.getBudgetRecommendations(city),
@@ -1450,6 +1782,101 @@ async function handleLocalRecommendations() {
             document.getElementById('messages').appendChild(weatherDiv);
         }
         
+        // Display local food
+        if (localData.local_food && localData.local_food.length > 0) {
+            addBotMessage('Must-try local food specialties:', '🍽️ Local Cuisine');
+            localData.local_food.forEach(food => {
+                const foodDiv = document.createElement('div');
+                foodDiv.className = 'recommendation';
+                foodDiv.innerHTML = `
+                    <h4>🥘 ${food.name}</h4>
+                    <p><strong>Description:</strong> ${food.description}</p>
+                    <p><strong>📍 Where to find:</strong> ${food.where}</p>
+                `;
+                document.getElementById('messages').appendChild(foodDiv);
+            });
+        }
+        
+        // Display top restaurants
+        if (localData.restaurants && localData.restaurants.length > 0) {
+            addBotMessage('Recommended restaurants and dining:', '🍴 Top Restaurants');
+            localData.restaurants.forEach(restaurant => {
+                const restaurantDiv = document.createElement('div');
+                restaurantDiv.className = 'recommendation';
+                restaurantDiv.innerHTML = `
+                    <h4>🏪 ${restaurant.name}</h4>
+                    <p><strong>Cuisine:</strong> ${restaurant.cuisine}</p>
+                    <p><strong>📍 Area:</strong> ${restaurant.area}</p>
+                    <p><strong>✨ Specialty:</strong> ${restaurant.specialty}</p>
+                `;
+                document.getElementById('messages').appendChild(restaurantDiv);
+            });
+        }
+        
+        // Display traditional clothing
+        if (localData.traditional_clothing && localData.traditional_clothing.length > 0) {
+            addBotMessage('Traditional clothing and cultural wear:', '👘 Traditional Clothing');
+            localData.traditional_clothing.forEach(clothing => {
+                const clothingDiv = document.createElement('div');
+                clothingDiv.className = 'recommendation';
+                clothingDiv.innerHTML = `
+                    <h4>👗 ${clothing.type}</h4>
+                    <p><strong>Description:</strong> ${clothing.description}</p>
+                    <p><strong>Best for:</strong> ${clothing.occasions}</p>
+                    <p><strong>🛒 Where to buy:</strong> ${clothing.where}</p>
+                `;
+                document.getElementById('messages').appendChild(clothingDiv);
+            });
+        }
+        
+        // Display famous places
+        if (localData.famous_places && localData.famous_places.length > 0) {
+            addBotMessage('Famous places and landmarks to visit:', '🏛️ Must-Visit Places');
+            localData.famous_places.forEach(place => {
+                const placeDiv = document.createElement('div');
+                placeDiv.className = 'recommendation';
+                placeDiv.innerHTML = `
+                    <h4>🏗️ ${place.name}</h4>
+                    <p><strong>Type:</strong> ${place.type}</p>
+                    <p><strong>📍 Area:</strong> ${place.area}</p>
+                    <p><strong>✨ Highlights:</strong> ${place.highlights}</p>
+                `;
+                document.getElementById('messages').appendChild(placeDiv);
+            });
+        }
+        
+        // Display cultural events
+        if (localData.cultural_events && localData.cultural_events.length > 0) {
+            addBotMessage('Cultural events and festivals:', '🎭 Cultural Events');
+            localData.cultural_events.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'recommendation';
+                eventDiv.innerHTML = `
+                    <h4>🎪 ${event.name}</h4>
+                    <p><strong>📅 Period:</strong> ${event.period}</p>
+                    <p><strong>Description:</strong> ${event.description}</p>
+                    <p><strong>📍 Locations:</strong> ${event.locations}</p>
+                `;
+                document.getElementById('messages').appendChild(eventDiv);
+            });
+        }
+        
+        // Display shopping markets
+        if (localData.shopping_markets && localData.shopping_markets.length > 0) {
+            addBotMessage('Best shopping markets and districts:', '🛍️ Shopping Markets');
+            localData.shopping_markets.forEach(market => {
+                const marketDiv = document.createElement('div');
+                marketDiv.className = 'recommendation';
+                marketDiv.innerHTML = `
+                    <h4>🏪 ${market.name}</h4>
+                    <p><strong>Type:</strong> ${market.type}</p>
+                    <p><strong>📍 Area:</strong> ${market.area}</p>
+                    <p><strong>🛒 Specialties:</strong> ${market.specialties}</p>
+                `;
+                document.getElementById('messages').appendChild(marketDiv);
+            });
+        }
+        
         // Display local tips
         if (localData.local_tips && localData.local_tips.length > 0) {
             addBotMessage('Essential local tips:', '💡 Local Insights');
@@ -1494,10 +1921,10 @@ async function handleLocalRecommendations() {
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'quick-suggestions';
         actionsDiv.innerHTML = `
-            <button class="quick-btn" onclick="handleEnhancedClothingQuery()">👘 Traditional Clothing</button>
-            <button class="quick-btn" onclick="handleFoodQuery()">🍽️ Food Places</button>
-            <button class="quick-btn" onclick="handleEventsQuery()">🎭 Events</button>
-            <button class="quick-btn" onclick="handleCultureQuery()">🏛️ Culture</button>
+            <button class="quick-btn" onclick="handleEnhancedClothingQuery()">👘 More Clothing</button>
+            <button class="quick-btn" onclick="handleFoodQuery()">🍽️ More Food</button>
+            <button class="quick-btn" onclick="handleEventsQuery()">🎭 Live Events</button>
+            <button class="quick-btn" onclick="handleCultureQuery()">🏛️ Cultural Sites</button>
         `;
         document.getElementById('messages').appendChild(actionsDiv);
         
@@ -1510,3 +1937,4 @@ async function handleLocalRecommendations() {
 // Initialize performance monitoring
 console.log('🚀 Enhanced CulturalBot with Free APIs loaded!');
 console.log('📊 Available APIs:', Object.keys(API_CONFIG));
+
