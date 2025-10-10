@@ -1937,4 +1937,3 @@ async function handleLocalRecommendations() {
 // Initialize performance monitoring
 console.log('🚀 Enhanced CulturalBot with Free APIs loaded!');
 console.log('📊 Available APIs:', Object.keys(API_CONFIG));
-
