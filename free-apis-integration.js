@@ -1766,172 +1766,262 @@ async function handleEnhancedClothingQuery(userPreferences = {}) {
 
 // Local recommendations handler
 async function handleLocalRecommendations() {
-    addBotMessage(`Getting comprehensive local recommendations for ${currentCity}...`, '🗺️ Local Expert');
-    
     try {
         const localData = await LocalRecommendationsAPI.getLocalRecommendations(currentCity);
         
-        // Display weather
-        if (localData.weather) {
-            const weatherDiv = document.createElement('div');
-            weatherDiv.className = 'weather-info';
-            weatherDiv.innerHTML = `
-                <h4>🌡️ Current Weather: ${localData.weather.temperature}°C</h4>
-                <p><strong>Condition:</strong> ${localData.weather.condition}</p>
-            `;
-            document.getElementById('messages').appendChild(weatherDiv);
-        }
+        // Show initial message and mark the starting point
+        const startMessageId = addBotMessage(`🎯 Local recommendations for ${currentCity.charAt(0).toUpperCase() + currentCity.slice(1)} are ready! Choose what to explore:`, '🗺️ Local Expert');
         
-        // Display local food
-        if (localData.local_food && localData.local_food.length > 0) {
-            addBotMessage('Must-try local food specialties:', '🍽️ Local Cuisine');
-            localData.local_food.forEach(food => {
-                const foodDiv = document.createElement('div');
-                foodDiv.className = 'recommendation';
-                foodDiv.innerHTML = `
-                    <h4>🥘 ${food.name}</h4>
-                    <p><strong>Description:</strong> ${food.description}</p>
-                    <p><strong>📍 Where to find:</strong> ${food.where}</p>
-                `;
-                document.getElementById('messages').appendChild(foodDiv);
-            });
-        }
-        
-        // Display top restaurants
-        if (localData.restaurants && localData.restaurants.length > 0) {
-            addBotMessage('Recommended restaurants and dining:', '🍴 Top Restaurants');
-            localData.restaurants.forEach(restaurant => {
-                const restaurantDiv = document.createElement('div');
-                restaurantDiv.className = 'recommendation';
-                restaurantDiv.innerHTML = `
-                    <h4>🏪 ${restaurant.name}</h4>
-                    <p><strong>Cuisine:</strong> ${restaurant.cuisine}</p>
-                    <p><strong>📍 Area:</strong> ${restaurant.area}</p>
-                    <p><strong>✨ Specialty:</strong> ${restaurant.specialty}</p>
-                `;
-                document.getElementById('messages').appendChild(restaurantDiv);
-            });
-        }
-        
-        // Display traditional clothing
-        if (localData.traditional_clothing && localData.traditional_clothing.length > 0) {
-            addBotMessage('Traditional clothing and cultural wear:', '👘 Traditional Clothing');
-            localData.traditional_clothing.forEach(clothing => {
-                const clothingDiv = document.createElement('div');
-                clothingDiv.className = 'recommendation';
-                clothingDiv.innerHTML = `
-                    <h4>👗 ${clothing.type}</h4>
-                    <p><strong>Description:</strong> ${clothing.description}</p>
-                    <p><strong>Best for:</strong> ${clothing.occasions}</p>
-                    <p><strong>🛒 Where to buy:</strong> ${clothing.where}</p>
-                `;
-                document.getElementById('messages').appendChild(clothingDiv);
-            });
-        }
-        
-        // Display famous places
-        if (localData.famous_places && localData.famous_places.length > 0) {
-            addBotMessage('Famous places and landmarks to visit:', '🏛️ Must-Visit Places');
-            localData.famous_places.forEach(place => {
-                const placeDiv = document.createElement('div');
-                placeDiv.className = 'recommendation';
-                placeDiv.innerHTML = `
-                    <h4>🏗️ ${place.name}</h4>
-                    <p><strong>Type:</strong> ${place.type}</p>
-                    <p><strong>📍 Area:</strong> ${place.area}</p>
-                    <p><strong>✨ Highlights:</strong> ${place.highlights}</p>
-                `;
-                document.getElementById('messages').appendChild(placeDiv);
-            });
-        }
-        
-        // Display cultural events
-        if (localData.cultural_events && localData.cultural_events.length > 0) {
-            addBotMessage('Cultural events and festivals:', '🎭 Cultural Events');
-            localData.cultural_events.forEach(event => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = 'recommendation';
-                eventDiv.innerHTML = `
-                    <h4>🎪 ${event.name}</h4>
-                    <p><strong>📅 Period:</strong> ${event.period}</p>
-                    <p><strong>Description:</strong> ${event.description}</p>
-                    <p><strong>📍 Locations:</strong> ${event.locations}</p>
-                `;
-                document.getElementById('messages').appendChild(eventDiv);
-            });
-        }
-        
-        // Display shopping markets
-        if (localData.shopping_markets && localData.shopping_markets.length > 0) {
-            addBotMessage('Best shopping markets and districts:', '🛍️ Shopping Markets');
-            localData.shopping_markets.forEach(market => {
-                const marketDiv = document.createElement('div');
-                marketDiv.className = 'recommendation';
-                marketDiv.innerHTML = `
-                    <h4>🏪 ${market.name}</h4>
-                    <p><strong>Type:</strong> ${market.type}</p>
-                    <p><strong>📍 Area:</strong> ${market.area}</p>
-                    <p><strong>🛒 Specialties:</strong> ${market.specialties}</p>
-                `;
-                document.getElementById('messages').appendChild(marketDiv);
-            });
-        }
-        
-        // Display local tips
-        if (localData.local_tips && localData.local_tips.length > 0) {
-            addBotMessage('Essential local tips:', '💡 Local Insights');
-            const tipsDiv = document.createElement('div');
-            tipsDiv.className = 'recommendation';
-            tipsDiv.innerHTML = `
-                <h4>🎯 Insider Tips</h4>
-                <ul>
-                    ${localData.local_tips.map(tip => `<li>${tip}</li>`).join('')}
-                </ul>
-            `;
-            document.getElementById('messages').appendChild(tipsDiv);
-        }
-        
-        // Display budget recommendations
-        if (localData.budget_options) {
-            const budgetDiv = document.createElement('div');
-            budgetDiv.className = 'recommendation';
-            budgetDiv.innerHTML = `
-                <h4>💰 Budget-Friendly Options</h4>
-                <p><strong>🏨 Accommodation:</strong> ${localData.budget_options.accommodation}</p>
-                <p><strong>🍽️ Food:</strong> ${localData.budget_options.food}</p>
-                <p><strong>🚌 Transport:</strong> ${localData.budget_options.transport}</p>
-                <p><strong>🎭 Activities:</strong> ${localData.budget_options.activities}</p>
-            `;
-            document.getElementById('messages').appendChild(budgetDiv);
-        }
-        
-        // Display cultural insights
-        if (localData.cultural_insights) {
-            const cultureDiv = document.createElement('div');
-            cultureDiv.className = 'ai-insight';
-            cultureDiv.style.cssText = 'background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 10px; border-radius: 8px; margin: 10px 0;';
-            cultureDiv.innerHTML = `
-                <strong>🌍 Cultural Insight:</strong><br>
-                ${localData.cultural_insights}
-            `;
-            document.getElementById('messages').appendChild(cultureDiv);
-        }
-        
-        // Quick action buttons
+        // Quick action buttons for detailed exploration
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'quick-suggestions';
+        actionsDiv.style.cssText = 'margin: 10px 0; display: flex; flex-wrap: wrap; gap: 8px;';
         actionsDiv.innerHTML = `
-            <button class="quick-btn" onclick="handleEnhancedClothingQuery()">👘 More Clothing</button>
-            <button class="quick-btn" onclick="handleFoodQuery()">🍽️ More Food</button>
-            <button class="quick-btn" onclick="handleEventsQuery()">🎭 Live Events</button>
-            <button class="quick-btn" onclick="handleCultureQuery()">🏛️ Cultural Sites</button>
+            <button class="quick-btn" onclick="showDetailedFood('${currentCity}')">🍽️ Food & Cuisine</button>
+            <button class="quick-btn" onclick="showDetailedRestaurants('${currentCity}')">🏪 Top Restaurants</button>
+            <button class="quick-btn" onclick="showDetailedClothing('${currentCity}')">👘 Traditional Clothing</button>
+            <button class="quick-btn" onclick="showDetailedPlaces('${currentCity}')">🏛️ Famous Places</button>
+            <button class="quick-btn" onclick="showDetailedEvents('${currentCity}')">🎭 Cultural Events</button>
+            <button class="quick-btn" onclick="showDetailedShopping('${currentCity}')">🛍️ Shopping Markets</button>
+            <button class="quick-btn" onclick="showLocalTips('${currentCity}')">💡 Local Insights</button>
+            <button class="quick-btn" onclick="showWeatherInfo('${currentCity}')">🌡️ Weather Info</button>
         `;
         document.getElementById('messages').appendChild(actionsDiv);
+        
+        // Ensure chat stops at the beginning of results
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            const lastBotMessage = messages.querySelector('.message:last-child');
+            if (lastBotMessage) {
+                lastBotMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 200);
         
     } catch (error) {
         console.error('Error getting local recommendations:', error);
         addBotMessage('I can provide basic recommendations. Try asking about specific categories like food, culture, or events!', '🗺️ Basic Recommendations');
     }
+}
+
+// Helper functions for detailed views
+async function showDetailedFood(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    if (localData.local_food && localData.local_food.length > 0) {
+        addBotMessage('Must-try local food specialties:', '🍽️ Local Cuisine');
+        localData.local_food.forEach(food => {
+            const foodDiv = document.createElement('div');
+            foodDiv.className = 'recommendation';
+            foodDiv.innerHTML = `
+                <h4>🥘 ${food.name} ${food.mustTry ? '<span style="background: #e74c3c; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">MUST TRY</span>' : ''}</h4>
+                <p><strong>Description:</strong> ${food.description}</p>
+                <p><strong>📍 Where to find:</strong> ${food.where}</p>
+                <p><strong>💰 Price:</strong> ${food.price}</p>
+            `;
+            document.getElementById('messages').appendChild(foodDiv);
+        });
+        // Scroll to the new content
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }, 100);
+    }
+}
+
+async function showDetailedRestaurants(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    if (localData.restaurants && localData.restaurants.length > 0) {
+        addBotMessage('Recommended restaurants and dining:', '🍴 Top Restaurants');
+        localData.restaurants.forEach(restaurant => {
+            const restaurantDiv = document.createElement('div');
+            restaurantDiv.className = 'recommendation';
+            restaurantDiv.innerHTML = `
+                <h4>🏪 ${restaurant.name}</h4>
+                <p><strong>Cuisine:</strong> ${restaurant.cuisine}</p>
+                <p><strong>📍 Area:</strong> ${restaurant.area}</p>
+                <p><strong>✨ Specialty:</strong> ${restaurant.specialty}</p>
+                <p><strong>💰 Price:</strong> ${restaurant.price}</p>
+                <p><strong>📅 Reservation:</strong> ${restaurant.reservation}</p>
+            `;
+            document.getElementById('messages').appendChild(restaurantDiv);
+        });
+        // Auto-scroll to new content
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }, 100);
+    }
+}
+
+async function showDetailedClothing(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    if (localData.traditional_clothing && localData.traditional_clothing.length > 0) {
+        addBotMessage('Traditional clothing and cultural wear:', '👘 Traditional Clothing');
+        localData.traditional_clothing.forEach(clothing => {
+            const clothingDiv = document.createElement('div');
+            clothingDiv.className = 'recommendation';
+            clothingDiv.innerHTML = `
+                <h4>👗 ${clothing.type}</h4>
+                <p><strong>Description:</strong> ${clothing.description}</p>
+                <p><strong>Best for:</strong> ${clothing.occasions}</p>
+                <p><strong>🛒 Where to buy:</strong> ${clothing.where}</p>
+                <p><strong>💰 Price:</strong> ${clothing.price}</p>
+            `;
+            document.getElementById('messages').appendChild(clothingDiv);
+        });
+        // Auto-scroll to new content
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }, 100);
+    }
+}
+
+async function showDetailedPlaces(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    if (localData.famous_places && localData.famous_places.length > 0) {
+        addBotMessage('Famous places and landmarks to visit:', '🏛️ Must-Visit Places');
+        localData.famous_places.forEach(place => {
+            const placeDiv = document.createElement('div');
+            placeDiv.className = 'recommendation';
+            placeDiv.innerHTML = `
+                <h4>🏗️ ${place.name}</h4>
+                <p><strong>Type:</strong> ${place.type}</p>
+                <p><strong>📍 Area:</strong> ${place.area}</p>
+                <p><strong>✨ Highlights:</strong> ${place.highlights}</p>
+                <p><strong>⏰ Best time:</strong> ${place.bestTime}</p>
+                <p><strong>🎫 Entry:</strong> ${place.entry}</p>
+            `;
+            document.getElementById('messages').appendChild(placeDiv);
+        });
+        // Auto-scroll to new content
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }, 100);
+    }
+}
+
+async function showDetailedEvents(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    if (localData.cultural_events && localData.cultural_events.length > 0) {
+        addBotMessage('Cultural events and festivals:', '🎭 Cultural Events');
+        localData.cultural_events.forEach(event => {
+            const eventDiv = document.createElement('div');
+            eventDiv.className = 'recommendation';
+            eventDiv.innerHTML = `
+                <h4>🎪 ${event.name}</h4>
+                <p><strong>📅 Period:</strong> ${event.period}</p>
+                <p><strong>Description:</strong> ${event.description}</p>
+                <p><strong>📍 Locations:</strong> ${event.locations}</p>
+                <p><strong>🎯 Significance:</strong> ${event.significance}</p>
+            `;
+            document.getElementById('messages').appendChild(eventDiv);
+        });
+        // Auto-scroll to new content
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }, 100);
+    }
+}
+
+async function showDetailedShopping(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    if (localData.shopping_markets && localData.shopping_markets.length > 0) {
+        addBotMessage('Best shopping markets and districts:', '🛍️ Shopping Markets');
+        localData.shopping_markets.forEach(market => {
+            const marketDiv = document.createElement('div');
+            marketDiv.className = 'recommendation';
+            marketDiv.innerHTML = `
+                <h4>🏪 ${market.name}</h4>
+                <p><strong>Type:</strong> ${market.type}</p>
+                <p><strong>📍 Area:</strong> ${market.area}</p>
+                <p><strong>🛒 Specialties:</strong> ${market.specialties}</p>
+                <p><strong>⏰ Hours:</strong> ${market.hours}</p>
+                <p><strong>💸 Bargaining:</strong> ${market.bargaining}</p>
+            `;
+            document.getElementById('messages').appendChild(marketDiv);
+        });
+        // Auto-scroll to new content
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }, 100);
+    }
+}
+
+
+
+async function showWeatherInfo(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    if (localData.weather) {
+        addBotMessage('Current weather information:', '🌡️ Weather Update');
+        const weatherDiv = document.createElement('div');
+        weatherDiv.className = 'recommendation';
+        weatherDiv.style.cssText = 'background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; padding: 15px; border-radius: 10px; margin: 10px 0;';
+        weatherDiv.innerHTML = `
+            <h4>🌡️ Current Weather: ${localData.weather.temperature}°C</h4>
+            <p><strong>Condition:</strong> ${localData.weather.condition}</p>
+            <p><strong>Humidity:</strong> ${localData.weather.humidity}</p>
+            <p><strong>Best time to visit:</strong> ${localData.weather.bestTime}</p>
+        `;
+        document.getElementById('messages').appendChild(weatherDiv);
+        // Auto-scroll to new content
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }, 100);
+    }
+}
+
+async function showLocalTips(city) {
+    const localData = await LocalRecommendationsAPI.getLocalRecommendations(city);
+    addBotMessage('Essential local insights and tips:', '💡 Local Insights');
+    
+    // Cultural insights
+    if (localData.cultural_insights) {
+        const cultureDiv = document.createElement('div');
+        cultureDiv.className = 'recommendation';
+        cultureDiv.style.cssText = 'background: linear-gradient(135deg, #ff9a56, #ff6b9d); color: white; padding: 15px; border-radius: 10px; margin: 10px 0;';
+        cultureDiv.innerHTML = `
+            <h4>🌍 Cultural Insight</h4>
+            <p>${localData.cultural_insights}</p>
+        `;
+        document.getElementById('messages').appendChild(cultureDiv);
+    }
+    
+    // Local tips
+    if (localData.local_tips && localData.local_tips.length > 0) {
+        const tipsDiv = document.createElement('div');
+        tipsDiv.className = 'recommendation';
+        tipsDiv.innerHTML = `<h4>💡 Essential Local Tips</h4>`;
+        localData.local_tips.forEach(tip => {
+            const tipP = document.createElement('p');
+            tipP.innerHTML = `• ${tip}`;
+            tipsDiv.appendChild(tipP);
+        });
+        document.getElementById('messages').appendChild(tipsDiv);
+    }
+    
+    // Budget options
+    if (localData.budget_options) {
+        const budgetDiv = document.createElement('div');
+        budgetDiv.className = 'recommendation';
+        budgetDiv.innerHTML = `
+            <h4>💰 Budget-Friendly Options</h4>
+            <p><strong>🏨 Accommodation:</strong> ${localData.budget_options.accommodation}</p>
+            <p><strong>🍽️ Food:</strong> ${localData.budget_options.food}</p>
+            <p><strong>🚌 Transport:</strong> ${localData.budget_options.transport}</p>
+            <p><strong>🎭 Activities:</strong> ${localData.budget_options.activities}</p>
+        `;
+        document.getElementById('messages').appendChild(budgetDiv);
+    }
+    
+    // Auto-scroll to new content
+    setTimeout(() => {
+        const messages = document.getElementById('messages');
+        messages.scrollTop = messages.scrollHeight;
+    }, 100);
 }
 
 // Initialize performance monitoring
