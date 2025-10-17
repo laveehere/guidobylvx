@@ -1442,9 +1442,17 @@ async function sendMessage(message) {
                 await handleEventsQuery();
                 break;
             case 'places':
-                await handlePlacesQuery();
-                break;
-            case 'shopping':
+                // Check if this is actually a shopping query misclassified as places
+    const lowerMessage = message.toLowerCase();
+    if (lowerMessage.includes('shopping') || lowerMessage.includes('shop') || 
+        lowerMessage.includes('market') || lowerMessage.includes('mall') ||
+        lowerMessage.includes('bazaar') || lowerMessage.includes('shopping district')) {
+        await handleShoppingQuery();
+    } else {
+        await handlePlacesQuery();
+    }
+    break;
+
             case 'market':
             case 'markets':    
                 await handleShoppingQuery();
