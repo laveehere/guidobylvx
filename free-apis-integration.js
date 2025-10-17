@@ -1445,9 +1445,12 @@ async function sendMessage(message) {
                 await handlePlacesQuery();
                 break;
             case 'shopping':
+            case 'market':
+            case 'markets':    
                 await handleShoppingQuery();
                 break;
             case 'clothing':
+            case 'traditional':    
                 await handleEnhancedClothingQuery();
                 break;
             case 'local':
