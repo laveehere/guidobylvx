@@ -1453,7 +1453,7 @@ async function sendMessage(message) {
                 }
                 break;
 
-
+            case 'shopping':
             case 'market':
             case 'markets':    
                 await handleShoppingQuery();
